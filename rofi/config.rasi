@@ -1,0 +1,140 @@
+configuration {
+   display-drun: "Applications";
+   font: "Adwaita-Mono 14";
+   display-window: "Windows";
+   drun-display-format: "{icon} {name}";
+   show-icons: true;  
+}
+* {
+   el-background: #1D4552;
+   el-background-alt: @el-background;  /*#193C47*/
+   el-bg-selected: #3A8BA6;
+   background: #203d46;  /*#203d46*/
+   foreground: #A4D0DF;
+   un-foreground: @foreground;
+   el-foreground: @foreground;
+   outline: #2bcddd;
+   red: #f70404;
+
+}
+
+window {
+    background-color: @background;
+    border:           4;
+    border-color: @outline;
+    border-radius:    12;
+    padding:          5;
+}
+mainbox {
+    border:  0;
+    padding: 0;
+}
+message {
+    border:       2px 0px 0px ;
+    border-color: @outline;
+    padding:      1px ;
+}
+textbox {
+    text-color: @foreground ;
+    
+}
+listview {
+    fixed-height: 0;
+    border:       2px 0px 0px ;
+    border-color: @outline;
+    spacing:      8px ;
+    scrollbar:    false;
+    padding:      5px 0px 0px ;
+}
+element {
+    border:  0;
+    border-radius: 18;
+    margin: 0;
+    padding: 5px ;
+}
+element-text {
+    background-color: @el-background;
+    text-color: @foreground ;
+}
+element.normal.normal {
+    background-color: @el-background ;
+    text-color: @foreground ;
+}
+element.normal.urgent {
+    background-color: inherit ;
+    text-color: inherit ;
+}
+element.normal.active {
+    background-color: @el-bg-selected ;
+    text-color: @foreground        ;
+}
+element.selected.normal {
+    background-color: @el-bg-selected ;
+    text-color: @el-bg-selected ;        
+}
+element.selected.urgent {
+    background-color: @el-bg-selected ;
+    text-color: @foreground       ;
+}
+element.selected.active {
+    background-color: @el-bg-selected ;
+    text-color: @foreground       ;
+}
+element.alternate.normal {
+    background-color: @el-background;
+    text-color: @foreground       ;
+}
+element.alternate.urgent {
+    background-color: @el-background;
+    text-color: @foreground       ;
+}
+element.alternate.active {
+    background-color: @el-background;
+    text-color: @foreground        ;
+}
+/* scrollbar {
+    width:        4px ;
+    border:       0;
+    border-radius: 12;
+    handle-color:  ;
+    handle-width: 8px ;
+    padding:      0;
+} \*
+mode-switcher {
+    border:       2px 0px 0px ;
+    border-color: @outline;
+}
+button {
+    spacing:    0;
+    text-color: @foreground  ;
+}
+button.selected {
+    background-color:  ;
+    text-color: @foreground        
+}
+inputbar {
+    spacing:    0;
+    text-color: @foreground  ;
+    padding:    1px ;
+}
+case-indicator {
+    spacing:    0;
+    text-color: @foreground  ;
+}
+entry {
+    spacing:    0;
+    text-color: @foreground  ;
+}
+prompt {
+    spacing:    0;
+    text-color: @foreground  ;
+}
+inputbar {
+    children:   [ prompt,textbox-prompt-colon,entry,case-indicator ];
+}
+textbox-prompt-colon {
+    expand:     false;
+    str:        ":";
+    margin:     0px 0.3em 0em 0em ;
+    text-color: @foreground @foreground  ;
+}
