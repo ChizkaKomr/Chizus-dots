@@ -1,0 +1,118 @@
+* {
+    border: none;
+    border-radius: 0;
+    font-family: Robot ,Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    min-height: 0;
+}
+
+window#waybar {
+    background: rgba(1, 1, 1, 0.2);
+    
+}
+
+tooltip {
+  background: rgba(128, 128, 128, 0.8);
+  border: 3px solid rgba(3, 227, 252, 0.5);
+  border-radius: 12px;
+}
+tooltip label {
+  color: white;
+}
+
+#workspaces button {
+    margin: 6px 3px 6px ;
+    border-radius: 12px;
+    padding: 0px 10px;
+    /*background-color: #ffffff;*/
+    color: #c2fcfc;
+}
+
+#workspaces button.active {
+    background-color: #c2fcfc; 
+    color: #203D46;
+    margin: 6px 3px 6px ;                      /*set it it 3 3 3 if u want it to be pilled and small like before*/
+    border-radius: 12px;
+    padding: 0px 10px;
+    transition: all 0.2s ease-in-out;
+}
+
+#workspaces button:hover {
+    color: #203D46;
+    margin: 6px 3px 6px ;
+    border-radius: 16px;
+    padding: 0px 10px;
+    transition: all 0.2s ease-in-out;
+}
+
+#workspaces {
+    background-color:#203D46;
+    margin: 6px 3px 6px ;
+    border-radius: 16px;
+    padding: 0px 3px
+}
+
+
+
+
+#mode {
+    background: #203D46;
+    border-bottom: 3px solid white;
+}
+
+#clock {
+    background-color:#203D46;
+    color:#c2fcfc;
+    margin: 6px 12px 6px 6px ;
+    border-radius: 16px;
+    padding: 0px 10px
+}
+
+
+@keyframes blink {
+    to {
+        background-color: #ffffff;
+        color: black;
+    }
+}
+
+#tray {
+    color:#AAF0F0;
+    margin: 6px 0px 6px 12px;
+    border-radius: 16px;
+    padding: 2px 10px;
+    background: #203D46;
+}
+
+#pulseaudio {
+    background-color:#203D46;
+    color:#c2fcfc;
+    margin: 6px 3px 6px ;
+    border-radius: 16px;
+    padding: 0px 12px;
+
+}
+
+#language {
+    background-color:#203D46;
+    color:#c2fcfc;
+    margin: 6px 3px 6px;
+    border-radius:16px;
+    padding: 0px 8px
+
+}
+#cpu, #memory {
+    background-color:#203D46;
+    color:#c2fcfc;
+    margin: 6px 3px 6px;
+    border-radius:16px;
+    padding: 0px 8px
+}
+
+#custom-gpu-temp {
+        background-color:#203D46;
+    color: #c2fcfc;
+    margin: 6px 3px 6px;
+    border-radius:16px;
+    padding: 0px 8px
+}
