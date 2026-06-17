@@ -1,6 +1,6 @@
 hl.config({
     input = {
-        kb_layout  = "us,ua,ru",
+        kb_layout  = "us,ru,ua",
         kb_variant = "",
         kb_model   = "",
         kb_options = "grp:alt_shift_toggle",

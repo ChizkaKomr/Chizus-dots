@@ -1,140 +1,72 @@
 configuration {
-   display-drun: "Applications";
-   font: "Adwaita-Mono 14";
-   display-window: "Windows";
-   drun-display-format: "{icon} {name}";
-   show-icons: true;  
+    show-icons:          true;
+    display-drun:        ""; 
+    drun-display-format: "{name}";
 }
-* {
-   el-background: #1D4552;
-   el-background-alt: @el-background;  /*#193C47*/
-   el-bg-selected: #3A8BA6;
-   background: #203d46;  /*#203d46*/
-   foreground: #A4D0DF;
-   un-foreground: @foreground;
-   el-foreground: @foreground;
-   outline: #2bcddd;
-   red: #f70404;
 
+* {
+    bg: #203D46A4;
+    s-fg: #203D46; /*colors for selected ones*/
+    fg: #c2fcfc;
+    s-bg: #c2fcfc;
+    border: #1adeba;
 }
 
 window {
-    background-color: @background;
-    border:           4;
-    border-color: @outline;
-    border-radius:    12;
-    padding:          5;
+    width:            30%;
+    border:           2px;
+    border-color:     @border;
+    background-color: @bg;
+    padding:          15px;
+    border-radius:    18px;
 }
-mainbox {
-    border:  0;
-    padding: 0;
+
+inputbar {
+    children: [ entry ];
+    border:   0px;
 }
-message {
-    border:       2px 0px 0px ;
-    border-color: @outline;
-    padding:      1px ;
+
+entry, prompt {
+    background-color: transparent;
+    text-color:       @fg;
 }
-textbox {
-    text-color: @foreground ;
-    
-}
+
 listview {
-    fixed-height: 0;
-    border:       2px 0px 0px ;
-    border-color: @outline;
-    spacing:      8px ;
+    columns:      1;
+    lines:        8;
+    spacing:      5px;
+    fixed-height: false;
     scrollbar:    false;
-    padding:      5px 0px 0px ;
+    border:       0px;
 }
+
 element {
-    border:  0;
-    border-radius: 18;
-    margin: 0;
-    padding: 5px ;
+    orientation:   horizontal;
+    children:      [ element-icon, element-text ];
+    spacing:       12px;
+    padding:       8px;
+    border-radius: 12px;
 }
-element-text {
-    background-color: @el-background;
-    text-color: @foreground ;
+
+element-icon {
+    size: 1.5em;
 }
-element.normal.normal {
-    background-color: @el-background ;
-    text-color: @foreground ;
+
+element-text, element-icon {
+    background-color: transparent;
+    text-color:       inherit;
 }
-element.normal.urgent {
-    background-color: inherit ;
-    text-color: inherit ;
+
+element.normal.normal, element.alternate.normal {
+    background-color: transparent;
+    text-color:       @fg;
 }
-element.normal.active {
-    background-color: @el-bg-selected ;
-    text-color: @foreground        ;
-}
+
 element.selected.normal {
-    background-color: @el-bg-selected ;
-    text-color: @el-bg-selected ;        
+    background-color: @s-bg;
+    text-color:       @s-fg;
 }
-element.selected.urgent {
-    background-color: @el-bg-selected ;
-    text-color: @foreground       ;
-}
-element.selected.active {
-    background-color: @el-bg-selected ;
-    text-color: @foreground       ;
-}
-element.alternate.normal {
-    background-color: @el-background;
-    text-color: @foreground       ;
-}
-element.alternate.urgent {
-    background-color: @el-background;
-    text-color: @foreground       ;
-}
-element.alternate.active {
-    background-color: @el-background;
-    text-color: @foreground        ;
-}
-/* scrollbar {
-    width:        4px ;
-    border:       0;
-    border-radius: 12;
-    handle-color:  ;
-    handle-width: 8px ;
-    padding:      0;
-} \*
-mode-switcher {
-    border:       2px 0px 0px ;
-    border-color: @outline;
-}
-button {
-    spacing:    0;
-    text-color: @foreground  ;
-}
-button.selected {
-    background-color:  ;
-    text-color: @foreground        
-}
-inputbar {
-    spacing:    0;
-    text-color: @foreground  ;
-    padding:    1px ;
-}
-case-indicator {
-    spacing:    0;
-    text-color: @foreground  ;
-}
-entry {
-    spacing:    0;
-    text-color: @foreground  ;
-}
-prompt {
-    spacing:    0;
-    text-color: @foreground  ;
-}
-inputbar {
-    children:   [ prompt,textbox-prompt-colon,entry,case-indicator ];
-}
-textbox-prompt-colon {
-    expand:     false;
-    str:        ":";
-    margin:     0px 0.3em 0em 0em ;
-    text-color: @foreground @foreground  ;
+
+textbox-num-sep, num-filtered-rows, num-rows {
+    enabled: false;
 }
