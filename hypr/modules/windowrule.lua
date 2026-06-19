@@ -54,5 +54,3 @@ hl.window_rule({
 
 
 
-
-
