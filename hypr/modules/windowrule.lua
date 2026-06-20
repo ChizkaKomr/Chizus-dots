@@ -47,8 +47,8 @@ hl.layer_rule({ match = { namespace = "waybar" }, blur = true, xray = true })
 hl.layer_rule({ match = { namespace = "rofi" }, blur = true, xray = false })
 
 hl.window_rule({
-    name  = "bitward",
-    match = { title = "^(Extension: (Bitwarden Password Manager) - Bitwarden — Zen Browser)$" },
+    name  = "HyprEmoji float",
+    match = { title = "^HyprEmoji$" },
     float = true,
 })
 
