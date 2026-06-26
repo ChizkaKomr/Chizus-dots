@@ -45,6 +45,9 @@ hl.window_rule({
 
 hl.layer_rule({ match = { namespace = "waybar" }, blur = true, xray = true })
 hl.layer_rule({ match = { namespace = "rofi" }, blur = true, xray = false })
+hl.layer_rule({ match = { namespace = "swaync" }, blur = true, xray = false })
+
+
 
 hl.window_rule({
     name  = "HyprEmoji float",
