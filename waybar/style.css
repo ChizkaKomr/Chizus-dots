@@ -105,7 +105,7 @@ tooltip label {
     font-weight: bold;
 
 }
-#cpu, #memory, #custom-gpu-temp, # {
+#cpu, #memory, #custom-gpu-temp, #custom-notification {
     background-color:#203D46;
     color:#c2fcfc;
     margin: 6px 3px 6px;
@@ -117,9 +117,9 @@ tooltip label {
 #custom-power {
     background-color:#203D46;
     color:#c2fcfc;
-    margin: 6px 6px 6px 6px ;
+    margin: 6px 6px 6px 12px;
     border-radius: 16px;
     padding: 3px 15px;
-    font-size: 15
+    font-size: 15;
 }
 
