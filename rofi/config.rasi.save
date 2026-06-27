@@ -1,4 +1,4 @@
-@import "~/.config/rofi/wallust-colors.rasi"
+@import "~/.config/wallust/wallust-colors.rasi"
 
 configuration {
     show-icons:          true;
@@ -7,17 +7,20 @@ configuration {
 }
 
 * {
-    bg: #3e3e3ea4;
-
+    bg: #203D46A4;
+    s-fg: #203D46; /*colors for selected ones*/
+    fg: #c2fcfc;
+    s-bg: #c2fcfc;
+    border: #1adeba;
 }
 
 window {
     width:            30%;
-    border:           3px;
+    border:           2px;
     border-color:     @border;
     background-color: @bg;
     padding:          15px;
-    border-radius:    25px;
+    border-radius:    18px;
 }
 
 inputbar {
@@ -27,7 +30,7 @@ inputbar {
 
 entry, prompt {
     background-color: transparent;
-    text-color:       @foreground;
+    text-color:       @fg;
 }
 
 listview {
@@ -58,12 +61,12 @@ element-text, element-icon {
 
 element.normal.normal, element.alternate.normal {
     background-color: transparent;
-    text-color:       @foreground;
+    text-color:       @fg;
 }
 
 element.selected.normal {
-    background-color: @selected;
-    text-color:       @background;
+    background-color: @s-bg;
+    text-color:       @s-fg;
 }
 
 textbox-num-sep, num-filtered-rows, num-rows {

@@ -94,12 +94,16 @@ check_contrast = false
 
 
 [templates]
-
+# generic one
 colors.template = "colors.css"
-
 colors.target = "~/.config/wallust/colors.css"
 
 
 kitty.template = "kitty.conf"
-
 kitty.target = "~/.config/kitty/wallust-colors.conf" 
+
+cava.template = "cava.template"
+cava.target = "~/.config/cava/config"
+
+rofi.template = "rofi.rasi"
+rofi.target = "~/.config/rofi/wallust-colors.rasi"
