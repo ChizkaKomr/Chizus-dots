@@ -107,3 +107,6 @@ cava.target = "~/.config/cava/config"
 
 rofi.template = "rofi.rasi"
 rofi.target = "~/.config/rofi/wallust-colors.rasi"
+
+btop.template = "btop"
+btop.target = "~/.config/btop/themes/wallust_btop.theme"

@@ -46,7 +46,7 @@ hl.window_rule({
 hl.layer_rule({ match = { namespace = "waybar" }, blur = true, xray = true })
 hl.layer_rule({ match = { namespace = "rofi" }, blur = true, xray = false })
 hl.layer_rule({ match = { namespace = "swaync" }, blur = true, xray = false })
-
+hl.layer_rule({ match = { namespace = "rofi" }, blur = true, xray = false, ignore_alpha = 0.5 })
 
 
 hl.window_rule({
