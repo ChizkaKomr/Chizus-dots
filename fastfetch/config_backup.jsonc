@@ -3,7 +3,7 @@
     "logo": {
        "source": "~/.config/fastfetch/logos/miku5.png",
        "type": "auto",
-       "height": 17,
+       "height": 18,
        "padding": {
           "top": 4,
           "left": 2,
@@ -17,12 +17,33 @@
        }
     },
     "modules": [
+       {
+          "type": "title",
+          "color": {
+             "at": "cyan"
+          }
+       },
+       {
+          "type": "separator",
+          "outputColor": "cyan"
+       },
        "break",
        {
           "type": "custom",
           "format": "{#keys}{#1}{#cyan}Hardware"
        },
-
+       {
+          "type": "host",
+          "key": "├ Model ",
+          "keyColor": "cyan",
+          "format": "{5} {2} {3}"
+       },
+       {
+          "type": "display",
+          "key": "├ Monitor",
+          "keyColor": "cyan",
+          "format": "MH2002 - {22}x{23} px"
+       },
        {
           "type": "cpu",
           "key": "├ CPU    ",
@@ -44,9 +65,9 @@
        },
        {
           "type": "disk",
-          "key": "└ Storage",
+          "key": "└ Disk   ",
           "keyColor": "cyan",
-          "format": "{1} / {2}"
+          "format": " {1} / {2}"
        },
        "break",
        {
@@ -55,9 +76,19 @@
        },
        {
           "type": "os",
-          "key": "├ OS      ",
+          "key": "├ OS Ver  ",
           "keyColor": "cyan",
           "format": "{2} {10}"
+       },
+       {
+          "type": "kernel",
+          "key": "├ Kernel  ",
+          "keyColor": "cyan"
+       },
+       {
+          "type": "packages",
+          "key": "├ Pkgs    ",
+          "keyColor": "cyan"
        },
        {
           "type": "wm",
@@ -65,8 +96,8 @@
           "keyColor": "cyan"
        },
        {
-          "type": "packages",
-          "key": "├ Pkgs    ",
+          "type": "shell",
+          "key": "├ Shell   ",
           "keyColor": "cyan"
        },
        {

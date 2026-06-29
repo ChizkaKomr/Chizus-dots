@@ -48,9 +48,9 @@ tooltip label {
     background-color: @foreground; 
     color: #1c1c1c;
     margin: 6px 3px; 
-    border-radius: 16px;
+    border-radius: 12px;
     padding: 0px 12px;
-    transition: all 0.2s ease-in-out;
+    transition: all 0.15s ease-in-out;
 }
 
 #workspaces {
