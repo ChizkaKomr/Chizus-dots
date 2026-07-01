@@ -5,7 +5,8 @@
 
 
     "modules-left": [
-        "custom/power"
+        "custom/power",
+        "custom/wallpaper"
     ],
     "modules-center": [
         "hyprland/workspaces"
@@ -122,7 +123,12 @@
 },
 "custom/power": {
     "tooltip": false,
-    "on-click": "wlogout",
+    "on-click": "wlogout -b 5 ",
     "format": "󰤄"
-}
 },
+"custom/wallpaper": {
+    "tooltip": false,
+    "on-click": "sh ~/Chizuko/scripting/rofi_walls-picker.sh",
+    "format": " "
+},
+}

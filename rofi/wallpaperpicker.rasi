@@ -1,28 +1,35 @@
 @import "~/.config/rofi/wallust-colors.rasi"
 
 configuration {
-    show-icons:          true;
+    show-icons:         true;
     display-drun:        ""; 
     drun-display-format: "{name}";
 }
 
 * {
     bg: #1a1a1aa9;
-
+    background-color: transparent; /* Fixes the white background from image_0a97b2.jpg */
 }
 
 window {
-    width:            30%;
+    width:            55%;         
     border:           3px;
     border-color:     @border;
-    background-color: @bg;
+    background-color: @bg;        /* This will now show correctly */
     padding:          15px;
     border-radius:    25px;
 }
 
+/* Added mainbox explicitly just to ensure alignment and spacing stay clean */
+mainbox {
+    background-color: transparent;
+}
+
 inputbar {
+    enabled:  false;
     children: [ entry ];
     border:   0px;
+    margin:   0px 0px 10px 0px;    
 }
 
 entry, prompt {
@@ -31,24 +38,29 @@ entry, prompt {
 }
 
 listview {
-    columns:      1;
-    lines:        8;
-    spacing:      5px;
-    fixed-height: false;
+    columns:      3;               
+    lines:        3;               
+    spacing:      25px;            
+    fixed-height: true;
     scrollbar:    false;
     border:       0px;
 }
 
 element {
-    orientation:   horizontal;
-    children:      [ element-icon, element-text ];
-    spacing:       12px;
-    padding:       8px;
-    border-radius: 12px;
+    orientation:       vertical;   
+    children:          [ element-icon, element-text ];
+    spacing:           8px;
+    padding:           12px;
+    border-radius:     12px;
 }
 
 element-icon {
-    size: 1.5em;
+    size:            6.5em;        
+    horizontal-align: 0.5;
+}
+
+element-text {
+    horizontal-align: 0.5;         
 }
 
 element-text, element-icon {
@@ -69,7 +81,3 @@ element.selected.normal {
 textbox-num-sep, num-filtered-rows, num-rows {
     enabled: false;
 }
-
-
-
-

@@ -124,9 +124,17 @@ tooltip label {
 #custom-power {
     background-color:#1c1c1c;
     color:@foreground;
-    margin: 6px 6px 6px 12px;
+    margin: 6px 3px 6px 12px;
     border-radius: 16px;
     padding: 3px 15px;
     font-size: 20;
 }
 
+#custom-wallpaper {
+    background-color:#1c1c1c;
+    color:@foreground;
+    margin: 6px 6px 6px 3px;
+    border-radius: 16px;
+    padding: 3px 15px;
+    font-size: 20;
+}
