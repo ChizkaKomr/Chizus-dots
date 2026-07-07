@@ -16,7 +16,7 @@
         "tray",
         "pulseaudio",
         "hyprland/language",
-        "custom/notification",
+      /*  "custom/notification", */
         "clock"
     ],
     "hypr/window": {
