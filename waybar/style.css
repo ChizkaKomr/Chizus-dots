@@ -13,7 +13,7 @@
 }
 
 window#waybar {
-    background: rgba(1, 1, 1, 0.2);
+    background: rgba(1, 1, 1, 0.0);
     
 }
 
@@ -40,7 +40,7 @@ tooltip label {
     color: #1c1c1c;
     margin: 6px 3px; 
     border-radius: 12px;
-    padding: 0px 12px;
+    padding: 0px 16px;
     transition: all 0.2s ease-in-out;
 }
 
@@ -137,4 +137,13 @@ tooltip label {
     border-radius: 16px;
     padding: 3px 15px;
     font-size: 20;
+}
+
+#mpris {
+    background-color:#1c1c1c;
+    color:@foreground;
+    margin: 6px 6px 6px 3px;
+    border-radius: 16px;
+    padding: 3px 15px;
+    font-size: 15;
 }

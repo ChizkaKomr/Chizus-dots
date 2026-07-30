@@ -62,3 +62,5 @@ rofi.target = "~/.config/rofi/wallust-colors.rasi"
 btop.template = "btop"
 btop.target = "~/.config/btop/themes/wallust_btop.theme"
 
+hypr.template = "hypr_colors"
+hypr.target = "~/.config/hypr/modules/hypr_colors.lua"

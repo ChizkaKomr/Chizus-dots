@@ -1,8 +1,8 @@
 /* /home/chizuko/.config/wallust/templates/rofi.rasi */
 
 * {
-    border:         #74C983;
-    selected:       #93EBA1;
-    background:     #010604;
-    foreground:     #9EF6AB;
+    border:         #D77290;
+    selected:       #FF9BBB;
+    background:     #090304;
+    foreground:     #FFA9C9;
 }

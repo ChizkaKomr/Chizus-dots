@@ -6,7 +6,8 @@
 
     "modules-left": [
         "custom/power",
-        "custom/wallpaper"
+        "custom/wallpaper",
+	"mpris"
     ],
     "modules-center": [
         "hyprland/workspaces"
@@ -121,6 +122,21 @@
     "on-click-right": "swaync-client -d -sw",
     "escape": true
 },
+"mpris": {
+    "format": "{player_icon} <b>{artist} - {title}</b>",
+    "format-paused": "{player_icon}  {artist} - {title}",
+    "player-icons": {
+        "default": "▶",
+        "spotify": "",
+        "firefox": "󰈹",
+
+    },
+    "status-icons": {
+        "paused": "⏸"
+    },
+    "max-length": 30
+},
+
 "custom/power": {
     "tooltip": false,
     "on-click": "wlogout -b 5 ",
