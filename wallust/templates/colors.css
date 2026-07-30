@@ -14,3 +14,10 @@
 @define-color color7 {{color7}};
 @define-color color8 {{color8}};
 @define-color color9 {{color9}};
+
+
+@define-color text           {{foreground}};
+@define-color background-alt #1c1c1c;
+@define-color selected       {{color3}};
+@define-color hover          {{color5}};
+@define-color urgent         {{color2}};
