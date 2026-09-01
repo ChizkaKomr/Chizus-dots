@@ -10,11 +10,7 @@
 | **Status Bar** | [Waybar](https://github.com/Alexays/Waybar) |
 | **App Launcher** | [Rofi](https://github.com/davatorium/rofi) |
 | **Power Menu** | [wlogout](https://github.com/ArtsyMacaw/wlogout) |
-| **Dynamic Colors** | [wallust](https://crates.io/crates/wallust) |
+| **Dynamic Colors** | [~~wallust~~](https://crates.io/crates/wallust) [matugen](https://github.com/InioX/matugen) |
 
 
-<img width="1600" height="900" alt="image" src="https://github.com/user-attachments/assets/88e95ff3-0b83-4a4a-bf92-58b8cd118d94" />
-
-<img width="1600" height="900" alt="image" src="https://github.com/user-attachments/assets/a7ed3dc4-18a7-4047-9022-4169d4ad667d" />
-
-<img width="1600" height="900" alt="image" src="https://github.com/user-attachments/assets/0459a490-f234-43c4-95a4-4cbf646321dc" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/8d1316d5-4771-4eb2-8463-736bcf1e22a8" />
