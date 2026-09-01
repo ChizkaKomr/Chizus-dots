@@ -5,7 +5,7 @@
 | :--- | :--- |
 | **Window Manager** | [Hyprland](https://github.com/hyprwm/Hyprland) |
 | **Terminal** | [Kitty](https://github.com/kovidgoyal/kitty) |
-| **Screen Locker** | [Hyprlock](https://github.com/hyprwm/hyprlock) |
+| **Lock screen** | [Hyprlock](https://github.com/hyprwm/hyprlock) |
 | **Wallpaper Daemon** | [awww](https://codeberg.org/LGFae/awww) |
 | **Status Bar** | [Waybar](https://github.com/Alexays/Waybar) |
 | **App Launcher** | [Rofi](https://github.com/davatorium/rofi) |
