@@ -1,0 +1,75 @@
+@import "~/.config/rofi/wallust-colors.rasi"
+
+configuration {
+    show-icons:          true;
+    display-drun:        ""; 
+    drun-display-format: "{name}";
+}
+
+* {
+    bg: #1a1a1aa9;
+
+}
+
+window {
+    width:            30%;
+    border:           3px;
+    border-color:     @border;
+    background-color: @bg;
+    padding:          15px;
+    border-radius:    25px;
+}
+
+inputbar {
+    children: [ entry ];
+    border:   0px;
+}
+
+entry, prompt {
+    background-color: transparent;
+    text-color:       @foreground;
+}
+
+listview {
+    columns:      1;
+    lines:        8;
+    spacing:      5px;
+    fixed-height: false;
+    scrollbar:    false;
+    border:       0px;
+}
+
+element {
+    orientation:   horizontal;
+    children:      [ element-icon, element-text ];
+    spacing:       12px;
+    padding:       8px;
+    border-radius: 12px;
+}
+
+element-icon {
+    size: 1.5em;
+}
+
+element-text, element-icon {
+    background-color: transparent;
+    text-color:       inherit;
+}
+
+element.normal.normal, element.alternate.normal {
+    background-color: transparent;
+    text-color:       @foreground;
+}
+
+element.selected.normal {
+    background-color: @selected;
+    text-color:       @background;
+}
+
+textbox-num-sep, num-filtered-rows, num-rows {
+    enabled: false;
+}
+
+
+
+

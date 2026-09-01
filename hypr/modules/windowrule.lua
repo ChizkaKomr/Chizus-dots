@@ -39,14 +39,15 @@ hl.window_rule({
     name  = "zen-picture in picture",
     match = { title = "^(Picture-in-Picture)$" },
     float = true,
+    pin = true,
 })
 
 
 
--- hl.layer_rule({ match = { namespace = "waybar" }, blur = true, xray = true })
+hl.layer_rule({ match = { namespace = "waybar" }, blur = true, xray = true })
 hl.layer_rule({ match = { namespace = "swaync" }, blur = true, xray = false })
 hl.layer_rule({ match = { namespace = "rofi" }, blur = true, xray = false, ignore_alpha = 0.5 })
-hl.layer_rule({ match = { namespace = "swaync-control-center", "swaync-notification-window" }, blur = true, xray = false,  ignore_alpha = 0.1})
+hl.layer_rule({ match = { namespace = "swaync-control-center" }, blur = true, xray = false,  ignore_alpha = 0.1})
 hl.layer_rule({ match = { namespace = "swaync-notification-window" }, blur = true, xray = false,  ignore_alpha = 0.1})
 
 -- hello

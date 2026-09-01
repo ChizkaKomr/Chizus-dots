@@ -1,0 +1,7 @@
+
+* {
+    border:         #dbc66f;
+    selected:       #dbc66f;
+    background:     #15130b;
+    foreground:     #dbc66f;
+}

@@ -1,0 +1,2 @@
+@define-color background {{ colors.background.default.hex }};
+@define-color foreground {{ colors.primary.default.hex }};

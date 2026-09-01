@@ -1,4 +1,4 @@
-@import "~/.config/rofi/wallust-colors.rasi"
+@import "~/.config/rofi/matugen_colors.rasi"
 
 configuration {
     show-icons:         true;

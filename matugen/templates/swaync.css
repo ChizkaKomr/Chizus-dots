@@ -1,0 +1,7 @@
+@define-color background {{ colors.background.default.hex }};
+@define-color selected   {{ colors.primary.default.hex }};
+@define-color urgent     {{ colors.error.default.hex }};
+@define-color hover      {{ colors.primary.default.hex }};
+
+@define-color text      {{ colors.primary.default.hex }};
+

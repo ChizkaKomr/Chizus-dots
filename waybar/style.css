@@ -1,4 +1,5 @@
-@import url("file:///home/chizuko/.config/wallust/colors.css");
+/* @import url("file:///home/chizuko/.config/wallust/colors.css"); */
+@import url("file:///home/chizuko/.config/waybar/matugen_colors.css");
 
 
 
@@ -18,7 +19,7 @@ window#waybar {
 }
 
 tooltip {
-  background: #1c1c1c;
+  background: @background;
   border: 3px solid @foreground;
   border-radius: 12px;
 }
@@ -30,14 +31,14 @@ tooltip label {
     margin: 6px 3px 6px ;
     border-radius: 12px;
     padding: 0px 12px;
-    background-color: #1c1c1c;
+    background-color: @background;
     color: @foreground;
     transition: all 0.15s ease-in-out;
 }
 
 #workspaces button.active {
     background-color: @foreground; 
-    color: #1c1c1c;
+    color: @background;
     margin: 6px 3px; 
     border-radius: 12px;
     padding: 0px 16px;
@@ -46,7 +47,7 @@ tooltip label {
 
 #workspaces button.hover {
     background-color: @foreground; 
-    color: #1c1c1c;
+    color: @background;
     margin: 6px 3px; 
     border-radius: 12px;
     padding: 0px 12px;
@@ -54,7 +55,7 @@ tooltip label {
 }
 
 #workspaces {
-    background-color:#1c1c1c;
+    background-color:@background;
     margin: 6px 3px 6px ;
     border-radius: 16px;
     padding: 0px 3px
@@ -64,12 +65,12 @@ tooltip label {
 
 
 #mode {
-    background: #1c1c1c;
+    background: @background;
     border-bottom: 3px solid white;
 }
 
 #clock {
-    background-color:#1c1c1c;
+    background-color:@background;
     color:@foreground;
     margin: 6px 12px 6px 3px ;
     border-radius: 16px;
@@ -91,11 +92,11 @@ tooltip label {
     margin: 6px 3px 6px 3px;
     border-radius: 16px;
     padding: 2px 10px;
-    background: #1c1c1c;
+    background: @background;
 }
 
 #pulseaudio {
-    background-color:#1c1c1c;
+    background-color:@background;
     color:@foreground;
     margin: 6px 3px 6px ;
     border-radius: 16px;
@@ -104,7 +105,7 @@ tooltip label {
 }
 
 #language {
-    background-color:#1c1c1c;
+    background-color:@background;
     color:@foreground;
     margin: 6px 3px 6px;
     border-radius:16px;
@@ -113,7 +114,7 @@ tooltip label {
 
 }
 #cpu, #memory, #custom-gpu-temp, #custom-notification {
-    background-color:#1c1c1c;
+    background-color:@background;
     color:@foreground;
     margin: 6px 3px 6px;
     border-radius:16px;
@@ -122,7 +123,7 @@ tooltip label {
 
 
 #custom-power {
-    background-color:#1c1c1c;
+    background-color:@background;
     color:@foreground;
     margin: 6px 3px 6px 12px;
     border-radius: 16px;
@@ -131,7 +132,7 @@ tooltip label {
 }
 
 #custom-wallpaper {
-    background-color:#1c1c1c;
+    background-color:@background;
     color:@foreground;
     margin: 6px 6px 6px 3px;
     border-radius: 16px;
@@ -140,7 +141,7 @@ tooltip label {
 }
 
 #mpris {
-    background-color:#1c1c1c;
+    background-color:@background;
     color:@foreground;
     margin: 6px 6px 6px 3px;
     border-radius: 16px;

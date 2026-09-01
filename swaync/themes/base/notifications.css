@@ -1,14 +1,10 @@
-@import url("file:///home/chizuko/.config/wallust/colors.css");
+@import url("file:///home/chizuko/.config/swaync/matugen_colors_swaync.css");
 
 
 
 * {
 
-  /*background-alt:        @color1;      Buttons background */
-  /*selected:              @color2;      Button selected */
-  /*hover:                 @color5;      Hover button */
-  /*urgent:                @color6;      Urgency critical */
-  /*text-selected:         @background; */
+
 
   color: @text;
 

@@ -1,4 +1,4 @@
-@import "~/.config/rofi/wallust-colors.rasi"
+@import "~/.config/rofi/matugen_colors.rasi"
 
 configuration {
     show-icons:          true;
@@ -13,6 +13,7 @@ configuration {
 
 window {
     width:            30%;
+    height:           63%;
     border:           3px;
     border-color:     @border;
     background-color: @bg;
@@ -27,6 +28,7 @@ inputbar {
 
 entry, prompt {
     background-color: transparent;
+    placeholder:      " Type to filter cutie ;3";
     text-color:       @foreground;
 }
 
