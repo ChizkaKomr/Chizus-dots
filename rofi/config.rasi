@@ -13,7 +13,6 @@ configuration {
 
 window {
     width:            30%;
-    height:           63%;
     border:           3px;
     border-color:     @border;
     background-color: @bg;

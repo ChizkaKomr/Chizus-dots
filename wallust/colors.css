@@ -1,23 +1,23 @@
 /* ~/.config/wallust/templates/colors.css */
 
-@define-color background #040501;
-@define-color foreground #FFBC75;
-@define-color cursor #E4875D;
+@define-color background #090304;
+@define-color foreground #FFA9C9;
+@define-color cursor #CA6D7C;
 
-@define-color color0 #060601;
-@define-color color1 #351309;
-@define-color color2 #5A5823;
-@define-color color3 #927456;
-@define-color color4 #7E321A;
-@define-color color5 #C85346;
-@define-color color6 #E18A48;
-@define-color color7 #FFAF6A;
-@define-color color8 #BE6E2E;
-@define-color color9 #351309;
+@define-color color0 #0B0406;
+@define-color color1 #232350;
+@define-color color2 #74527F;
+@define-color color3 #4D6467;
+@define-color color4 #927565;
+@define-color color5 #95312F;
+@define-color color6 #D77290;
+@define-color color7 #FF9BBB;
+@define-color color8 #BD5D7A;
+@define-color color9 #232350;
 
 
-@define-color text           #FFBC75;
+@define-color text           #FFA9C9;
 @define-color background-alt #1c1c1c;
-@define-color selected       #927456;
-@define-color hover          #C85346;
-@define-color urgent         #5A5823;
+@define-color selected       #4D6467;
+@define-color hover          #95312F;
+@define-color urgent         #74527F;
