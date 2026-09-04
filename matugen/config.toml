@@ -23,6 +23,7 @@ output_path = '~/.config/btop/themes/btop_matugen.theme'
 [templates.cava]
 input_path = '~/.config/matugen/templates/cava-colors'
 output_path = '~/.config/cava/themes/matugen_gradient'
+post_hook = 'pkill -USR1 cava'
 
 [templates.gtk3]
 input_path = '~/.config/matugen/templates/gtk-colors.css'

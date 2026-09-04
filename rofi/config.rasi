@@ -27,7 +27,7 @@ inputbar {
 
 entry, prompt {
     background-color: transparent;
-    placeholder:      " Type to filter cutie ;3";
+    placeholder:      "  Type to filter cutie ;3";
     text-color:       @foreground;
 }
 
