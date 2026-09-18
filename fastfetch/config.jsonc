@@ -22,7 +22,6 @@
           "type": "custom",
           "format": "{#keys}{#1}{#cyan}Hardware"
        },
-
        {
           "type": "cpu",
           "key": "├ CPU    ",
@@ -44,9 +43,17 @@
        },
        {
           "type": "disk",
-          "key": "└ Storage",
+          "key": "├ SSD    ",
           "keyColor": "cyan",
-          "format": "{1} / {2}"
+          "folders": "/",
+          "format": "{1} / {2} ({3})"
+       },
+       {
+          "type": "disk",
+          "key": "└ HDD    ",
+          "keyColor": "cyan",
+          "folders": "/run/media/chizuko/53b184b0-ee80-4a64-9f9c-e40587c882e3",
+          "format": "{1} / {2} ({3})"
        },
        "break",
        {

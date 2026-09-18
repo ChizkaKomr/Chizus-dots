@@ -45,7 +45,7 @@ element {
     children:      [ element-icon, element-text ];
     spacing:       12px;
     padding:       8px;
-    border-radius: 12px;
+    border-radius: 22px;
 }
 
 element-icon {
@@ -54,6 +54,7 @@ element-icon {
 
 element-text, element-icon {
     background-color: transparent;
+    vertical-align: 0.45;
     text-color:       inherit;
 }
 

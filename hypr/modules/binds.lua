@@ -60,6 +60,6 @@ hl.bind("XF86AudioPrev",  hl.dsp.exec_cmd("playerctl previous"),   { locked = tr
 
 hl.bind("ALT + F11", hl.dsp.exec_cmd("sh /home/chizuko/Chizuko/scripting/random_wallpaper.sh"))
 
-hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd("hyprshot -m region -t 1500 --freeze --clipboard-only"))
+hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd("hyprshot -m region -t 1500 -s --freeze --clipboard-only"))
 hl.bind("ALT + F10", hl.dsp.exec_cmd("hyprpicker -a"))
 
