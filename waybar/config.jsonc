@@ -145,7 +145,7 @@
 },
 "custom/wallpaper": {
     "tooltip": false,
-    "on-click": "sh ~/Chizuko/scripting/matugen_rofi_walls.sh",
+    "on-click": "sh /home/chizuko/.config/rice_scripts/matugen_rofi_walls.sh",
     "format": " "
 },
 }
