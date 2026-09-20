@@ -43,6 +43,14 @@ hl.window_rule({
 })
 
 
+hl.window_rule({
+    name  = "blender fullscreen fix",
+    match = { class = "blender" },
+    no_auto_hdr = true,
+})
+
+
+
 
 --hl.layer_rule({ match = { namespace = "waybar" }, blur = true, xray = true })
 hl.layer_rule({ match = { namespace = "swaync" }, blur = true, xray = false })
