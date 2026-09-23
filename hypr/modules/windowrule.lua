@@ -49,7 +49,11 @@ hl.window_rule({
     no_auto_hdr = true,
 })
 
-
+hl.window_rule({
+    name  = "blender fullscreen fix",
+    match = { class = "org.gnome.Calculator" },
+    float = true,
+})
 
 
 --hl.layer_rule({ match = { namespace = "waybar" }, blur = true, xray = true })

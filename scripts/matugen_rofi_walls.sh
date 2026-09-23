@@ -1,6 +1,7 @@
 #!/usr/bin/bash
 
 WALLS="$HOME/Pictures/wallpapers/W39/"
+
 IMAGE_PICKER_CONFIG="$HOME/.config/rofi/wallpaperpicker.rasi"                                # razi config
 WALLPAPER_FILES=$(find "$WALLS" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \)) # add other like gif ...
 CURRENT_WALLPAPER_FILE=$(basename "$(awww query | awk '{print $NF}')")
