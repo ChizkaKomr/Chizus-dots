@@ -1,12 +1,17 @@
 
-## My simple шлинукс rice
+# My simple шлинукс rice
+<img width="1920" height="1080" alt="Rectangle 1 — 4 Pieces (35°)" src="https://github.com/user-attachments/assets/1227c1a2-e39c-491b-8374-5bb1a841299e" />
+
+my personal rice im using, nothingg special but feel free to steal whatever u wantt
+## Preview
+- HyprLock
+<img width="1920" height="1080" alt="Pasted image" src="https://github.com/user-attachments/assets/7f2f49b4-9689-4539-9de7-81e3fa74d1da" />
+
+- Stuff
+<img width="1920" height="1080" alt="Pasted image (4)" src="https://github.com/user-attachments/assets/175774e3-821b-44a4-93ca-3b653bd1035f" />
 
 
-### Main приколюхи:
-   1. wallpaper picker (via rofi)
-   2. dynamic color palette (via matugen, previously wallust)  
-   
-| Component | Software |
+|  |  |
 | :--- | :--- |
 | **Window Manager** | [Hyprland](https://github.com/hyprwm/Hyprland) |
 | **Terminal** | [Kitty](https://github.com/kovidgoyal/kitty) |
@@ -16,8 +21,3 @@
 | **App Launcher** | [Rofi](https://github.com/davatorium/rofi) |
 | **Power Menu** | [wlogout](https://github.com/ArtsyMacaw/wlogout) |
 | **Dynamic Colors** | [~~wallust~~](https://crates.io/crates/wallust) [matugen](https://github.com/InioX/matugen) |
-
-### Preview:
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/18e14408-dbfd-4792-bb07-ec1cac953147" />
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/57f0a5fb-451f-4efc-9c91-858d91417b62" />
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/6f25fd92-4b23-4979-8d84-524c706680ca" />
