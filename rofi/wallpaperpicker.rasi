@@ -20,13 +20,13 @@ window {
     border-radius:    25px;
 }
 
-/* Added mainbox explicitly just to ensure alignment and spacing stay clean */
+
 mainbox {
     background-color: transparent;
 }
 
 inputbar {
-    enabled:  false;
+    enabled:  true;
     children: [ entry ];
     border:   0px;
     margin:   0px 0px 10px 0px;    
@@ -34,6 +34,7 @@ inputbar {
 
 entry, prompt {
     background-color: transparent;
+    placeholder:      "  Type to filter wallpapers";
     text-color:       @foreground;
 }
 
@@ -60,7 +61,8 @@ element-icon {
 }
 
 element-text {
-    horizontal-align: 0.5;         
+    horizontal-align: 0.5;
+    vertical-align: 20;
 }
 
 element-text, element-icon {

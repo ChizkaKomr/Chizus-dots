@@ -26,6 +26,10 @@ SELECTED_WALLPAPER_NAME=$(echo "$SELECTED_WALLPAPER" | sed 's/ (current)//')
 if [[ -n "$SELECTED_WALLPAPER_NAME" ]]; then
   awww img "$WALLS/$SELECTED_WALLPAPER_NAME"  --transition-type wipe --transition-duration 0.95  --transition-fps 144 --transition-angle 45
   matugen image "$WALLS/$SELECTED_WALLPAPER_NAME" --source-color-index 0
+
+  FULL_PATH="$WALLS/$SELECTED_WALLPAPER_NAME"
+  ln -sf "$FULL_PATH" "$HOME/.config/hypr/current_wallpaper"
+
   killall -9 waybar
   waybar &
   killall -9 swaync

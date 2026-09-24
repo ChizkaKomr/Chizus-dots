@@ -9,46 +9,72 @@
 
 window {
 	background-color: rgba(12, 12, 12, 0.45);
+	font-size: 16pt;
+	color: @foreground;
+	font-family: Helvetica;
 }
 
 button {
-    border-radius: 16;
-    border-color: @background;
-	text-decoration-color: #FFFFFF;
-    color: #ffffff;
-	background-color: @background;
-	border-style: solid;
-	border-width: 2px;
-	background-repeat: no-repeat;
-	background-position: center;
-	background-size: 35%;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 35%;
+    border: none;
+    color: @white;
+    background-color: transparent;
+    transition: all 0.3s ease-in; 
+    border-radius: 36px;
+    margin-top: 170px;
+    margin-bottom: 120px;
+    margin-left: 10px;
+    margin-right: 10px;
+    transition: all 0.7s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
-button:focus, button:active, button:hover {
-	background-color: @foreground;
-	outline-style: none;
+button:focus {
+    box-shadow: none;
+    background-size : 35%;
+}
+
+button:hover {
+    background-size: 50%;
+    background-color: @foreground;
+    color: transparent;
+    text-shadow: none;
+    box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.4);
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);	
 }
 
 #lock {
-    background-image: image(url("/usr/share/wlogout/icons/lock.png"), url("/usr/local/share/wlogout/icons/lock.png"));
+    background-image: image(url("/home/chizuko/.config/wlogout/icons/lock.png"));
+}
+#lock:hover {
+    background-image: image(url("/home/chizuko/.config/wlogout/icons/lock-hover.png"));
 }
 
 #logout {
-    background-image: image(url("/usr/share/wlogout/icons/logout.png"), url("/usr/local/share/wlogout/icons/logout.png"));
+    background-image: image(url("/home/chizuko/.config/wlogout/icons/logout.png"));
+}
+#logout:hover {
+    background-image: image(url("/home/chizuko/.config/wlogout/icons/logout-hover.png"));
 }
 
 #suspend {
-    background-image: image(url("/usr/share/wlogout/icons/suspend.png"), url("/usr/local/share/wlogout/icons/suspend.png"));
+    background-image: image(url("/home/chizuko/.config/wlogout/icons/suspend.png"));
+}
+#suspend:hover {
+    background-image: image(url("/home/chizuko/.config/wlogout/icons/suspend-hover.png"));
 }
 
-
 #shutdown {
-    background-image: image(url("/usr/share/wlogout/icons/shutdown.png"), url("/usr/local/share/wlogout/icons/shutdown.png"));
+    background-image: image(url("/home/chizuko/.config/wlogout/icons/shutdown.png"));
+}
+#shutdown:hover {
+    background-image: image(url("/home/chizuko/.config/wlogout/icons/shutdown-hover.png"));
 }
 
 #reboot {
-    background-image: image(url("/usr/share/wlogout/icons/reboot.png"), url("/usr/local/share/wlogout/icons/reboot.png"));
+    background-image: image(url("/home/chizuko/.config/wlogout/icons/reboot.png"));
 }
-
-
-
+#reboot:hover {
+    background-image: image(url("/home/chizuko/.config/wlogout/icons/reboot-hover.png"));
+}
