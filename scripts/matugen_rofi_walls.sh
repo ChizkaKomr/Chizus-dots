@@ -3,7 +3,7 @@
 WALLS="$HOME/Pictures/wallpapers/W39/"
 
 IMAGE_PICKER_CONFIG="$HOME/.config/rofi/wallpaperpicker.rasi"                                # razi config
-WALLPAPER_FILES=$(find "$WALLS" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \)) # add other like gif ...
+WALLPAPER_FILES=$(find "$WALLS" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \)) 
 CURRENT_WALLPAPER_FILE=$(basename "$(awww query | awk '{print $NF}')")
 ROFI_MENU=""
 
@@ -25,7 +25,7 @@ SELECTED_WALLPAPER_NAME=$(echo "$SELECTED_WALLPAPER" | sed 's/ (current)//')
 
 if [[ -n "$SELECTED_WALLPAPER_NAME" ]]; then
   awww img "$WALLS/$SELECTED_WALLPAPER_NAME"  --transition-type wipe --transition-duration 0.95  --transition-fps 144 --transition-angle 45
-  matugen image "$WALLS/$SELECTED_WALLPAPER_NAME" --source-color-index 0
+  matugen image "$WALLS/$SELECTED_WALLPAPER_NAME" --source-color-index 0 
 
   FULL_PATH="$WALLS/$SELECTED_WALLPAPER_NAME"
   ln -sf "$FULL_PATH" "$HOME/.config/hypr/current_wallpaper"

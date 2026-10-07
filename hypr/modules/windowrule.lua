@@ -22,6 +22,8 @@ hl.window_rule({
     no_focus = true,
 })
 
+hl.workspace_rule({ workspace = "4", layout = "scrolling" })
+
 hl.window_rule({
     name  = "telegram-media-viewer",
     match = { title = "^(Media viewer)$" },

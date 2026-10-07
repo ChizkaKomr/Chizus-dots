@@ -20,7 +20,7 @@ window#waybar {
 
 tooltip {
   background: @background;
-  border: 3px solid @foreground;
+  border: 2px solid @foreground;
   border-radius: 12px;
 }
 tooltip label {
@@ -148,3 +148,31 @@ tooltip label {
     padding: 3px 15px;
     font-size: 15;
 }
+
+
+
+
+
+/* Target the main container of the context menu */
+menu {
+    background: @background; /* Dark background (e.g., Catppuccin Mocha) */
+    border: 1px solid @foreground;
+    border-radius: 16px;
+    padding: 4px;
+}
+
+/* Style the individual items inside the menu */
+menu menuitem {
+    background: transparent;
+    color: @foreground; /* Light text color */
+    padding: 4px 5px;
+    transition: background-color 0.35s ease-out;
+}
+
+/* Style the hover/active state */
+menu menuitem:hover {
+    background-color: @foreground; /* Accent color */
+    color: @background; /* Dark text on hover */
+    border-radius: 4px;
+}
+

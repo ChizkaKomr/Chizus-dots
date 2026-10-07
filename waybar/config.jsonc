@@ -5,9 +5,9 @@
 
 
     "modules-left": [
-        "custom/power",
-        "custom/wallpaper",
-	"mpris"
+        "custom/power"
+     // "custom/wallpaper",
+     //	"mpris"
     ],
     "modules-center": [
         "hyprland/workspaces"
