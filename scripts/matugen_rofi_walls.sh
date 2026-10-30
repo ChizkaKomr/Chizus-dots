@@ -30,8 +30,8 @@ if [[ -n "$SELECTED_WALLPAPER_NAME" ]]; then
   FULL_PATH="$WALLS/$SELECTED_WALLPAPER_NAME"
   ln -sf "$FULL_PATH" "$HOME/.config/hypr/current_wallpaper"
 
-  killall -9 waybar
-  waybar &
+#  killall -9 waybar
+#  waybar &
   killall -9 swaync
   swaync &
 fi

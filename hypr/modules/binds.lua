@@ -15,7 +15,7 @@ hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(browser))
 hl.bind(mainMod .. " + L", hl.dsp.exec_cmd("hyprlock"))
 hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
 hl.bind(mainMod .. " + J", hl.dsp.layout("togglesplit"))    -- dwindle only
-hl.bind(mainMod .. " + Home", hl.dsp.window.fullscreen("maximized", "toggle"))
+hl.bind(mainMod .. " + Home", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }))
 -- Move focus with mainMod + arrow keys
 hl.bind(mainMod .. " + left",  hl.dsp.focus({ direction = "left" }))
 hl.bind(mainMod .. " + right", hl.dsp.focus({ direction = "right" }))
@@ -62,4 +62,5 @@ hl.bind("ALT + F11", hl.dsp.exec_cmd("sh /home/chizuko/Chizuko/scripting/random_
 
 hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd("hyprshot -m region -t 1500 -s --freeze --clipboard-only"))
 hl.bind("ALT + F10", hl.dsp.exec_cmd("hyprpicker -a"))
+
 

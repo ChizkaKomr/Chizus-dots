@@ -1,3 +1,4 @@
+local colors = require("colors")
 hl.config({
     general = {
         gaps_in  = 5,
@@ -6,10 +7,11 @@ hl.config({
         border_size = 3,
 
         col = {
-            active_border   = { colors = {"rgb(03bafc)", "rgb(00ff99)"}, angle = 45 },
-            inactive_border = "rgb(1c1c1c)",
-        },
-
+            active_border = { 
+                colors = { colors.primary, colors.secondary }, 
+                angle = 45 },
+            inactive_border = colors.background,
+	},
         -- Set to true to enable resizing windows by clicking and dragging on borders and gaps
         resize_on_border = false,
 

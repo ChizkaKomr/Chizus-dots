@@ -40,6 +40,8 @@ hl.window_rule({
 hl.window_rule({
     name  = "zen-picture in picture",
     match = { title = "^(Picture-in-Picture)$" },
+    animation = "almostLinear",
+    keep_aspect_ratio = true,
     float = true,
     pin = true,
 })
@@ -57,12 +59,17 @@ hl.window_rule({
     float = true,
 })
 
+hl.window_rule({
+    name  = "cs2 things",
+    match = { class = "cs2" },
+})
+
 
 --hl.layer_rule({ match = { namespace = "waybar" }, blur = true, xray = true })
 hl.layer_rule({ match = { namespace = "swaync" }, blur = true, xray = false })
-hl.layer_rule({ match = { namespace = "rofi" }, blur = true, xray = false, ignore_alpha = 0.5 })
-hl.layer_rule({ match = { namespace = "swaync-control-center" }, blur = true, xray = false,  ignore_alpha = 0.1})
-hl.layer_rule({ match = { namespace = "swaync-notification-window" }, blur = true, xray = false,  ignore_alpha = 0.1})
+hl.layer_rule({ match = { namespace = "rofi" }, blur = true, xray = false, ignore_alpha = 0.1 })
+hl.layer_rule({ match = { namespace = "swaync-control-center" }, blur = true, xray = false})
+hl.layer_rule({ match = { namespace = "swaync-notification-window" }, blur = true, xray = false})
 hl.layer_rule({ match = { namespace = "logout_dialog" }, blur = true, xray = false, ignore_alpha = 0.1})
 hl.layer_rule({ animation = "easeInOutCubic", match = { class = "^(hyprshot)$" } })
 -- hello

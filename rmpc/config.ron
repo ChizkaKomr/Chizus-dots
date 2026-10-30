@@ -3,7 +3,7 @@
 #![enable(unwrap_variant_newtypes)]
 (
     address: "127.0.0.1:6600",
-    on_song_change: ["/home/chizuko/.config/rmpc/notify"],
+//    on_song_change: ["/home/chizuko/.config/rmpc/notify"],
     theme: Some("matugen")
 )
 

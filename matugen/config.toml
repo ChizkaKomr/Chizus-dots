@@ -38,3 +38,11 @@ post_hook = '~/.config/matugen/post-hook-scripts/gtk-themes-reload.sh'
 [templates.rmpc]
 input_path = '/home/chizuko/.config/matugen/templates/rmpc.ron'
 output_path = '~/.config/rmpc/themes/matugen.ron'
+
+[templates.hyprcolors]
+input_path = '/home/chizuko/.config/matugen/templates/hyprcolors.lua'
+output_path = '~/.config/hypr/modules/colors.lua'
+
+[templates.obs]
+input_path = '/home/chizuko/.config/matugen/templates/obs_colors.obt'
+output_path = '~/.config/obs-studio/themes/matugen.obt'
