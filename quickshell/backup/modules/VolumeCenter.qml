@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import Quickshell.Io
 import Quickshell.Hyprland
 import Quickshell.Wayland
 import ".."
@@ -95,6 +96,21 @@ PanelWindow {
         active: root.isOpen
         onCleared: root.close()
     }
+
+    IpcHandler {
+        target: "volume"
+        function toggle() {
+            root.toggle();
+        }
+        function open() {
+            root.open();
+        }
+        function close() {
+            root.close();
+        }
+    }
+
+
 
     // Fullscreen backdrop: absorbs any click outside the volume card so nothing underneath is triggered
     MouseArea {

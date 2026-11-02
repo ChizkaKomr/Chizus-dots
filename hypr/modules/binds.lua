@@ -63,4 +63,6 @@ hl.bind("ALT + F11", hl.dsp.exec_cmd("sh /home/chizuko/Chizuko/scripting/random_
 hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd("hyprshot -m region -t 1500 -s --freeze --clipboard-only"))
 hl.bind("ALT + F10", hl.dsp.exec_cmd("hyprpicker -a"))
 
+hl.bind(mainMod .. " + SHIFT + V", hl.dsp.exec_cmd("quickshell ipc call clipboard toggle"))
+
 

@@ -262,7 +262,7 @@ PanelWindow {
                         Rectangle {
                             anchors.fill: parent
                             radius: card.radius
-                            color: Theme.foreground
+                            color: Theme.shadow
                         }
                     }
 
@@ -270,10 +270,10 @@ PanelWindow {
                         source: shadowSource
                         anchors.fill: card
                         shadowEnabled: true
-                        shadowColor: Theme.foreground
+                        shadowColor: Theme.shadow
                         shadowBlur: 1.0
                         shadowScale: 1.05
-                        shadowOpacity: delegateRoot.isHovered ? 0.60 : 0.0
+                        shadowOpacity: delegateRoot.isHovered ? 0.35 : 0.0
                         opacity: shadowOpacity
 
                         Behavior on shadowOpacity {
@@ -289,9 +289,9 @@ PanelWindow {
                         width: 380
                         implicitHeight: Math.max(92, Math.max(iconBox.height + 28, textCol.implicitHeight + (actionsRow.visible ? actionsRow.implicitHeight + 8 : 0) + 24))
                         radius: 22
-                        color: Theme.background
-                        border.color: delegateRoot.isCritical ? Theme.alertRed : Theme.foreground
-                        border.width: 2
+                        color: Theme.surface
+                        border.color: delegateRoot.isCritical ? Theme.error : (delegateRoot.isHovered ? Theme.primary : Theme.outlineVariant)
+                        border.width: 1
                         clip: true
 
                         Item {
@@ -323,7 +323,7 @@ PanelWindow {
                                 Rectangle {
                                     anchors.fill: parent
                                     radius: 18
-                                    color: delegateRoot.isCritical ? Qt.rgba(Theme.alertRed.r, Theme.alertRed.g, Theme.alertRed.b, 0.22) : Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.2)
+                                    color: delegateRoot.isCritical ? Theme.errorContainer : Theme.secondaryContainer
                                 }
 
                                 // Full-bleed image loader for file paths & URLs (e.g. album art cover)
@@ -362,7 +362,7 @@ PanelWindow {
                                     text: delegateRoot.isCritical ? "󰀦" : (modelData && modelData.appName ? "" : "󰂚")
                                     font.family: Theme.iconFamily
                                     font.pixelSize: 26
-                                    color: delegateRoot.isCritical ? Theme.alertRed : Theme.foreground
+                                    color: delegateRoot.isCritical ? Theme.colorOnErrorContainer : Theme.colorOnSecondaryContainer
                                     renderType: Text.NativeRendering
                                 }
                             }
@@ -371,7 +371,7 @@ PanelWindow {
                                 anchors.fill: parent
                                 radius: 18
                                 color: "transparent"
-                                border.color: delegateRoot.isCritical ? Qt.rgba(Theme.alertRed.r, Theme.alertRed.g, Theme.alertRed.b, 0.5) : Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.35)
+                                border.color: delegateRoot.isCritical ? Theme.error : "transparent"
                                 border.width: 1
                             }
                         }
@@ -396,7 +396,7 @@ PanelWindow {
                                 font.family: Theme.fontFamily
                                 font.pixelSize: 15
                                 font.bold: true
-                                color: "#ffffff"
+                                color: Theme.colorOnSurface
                                 elide: Text.ElideRight
                                 renderType: Text.NativeRendering
                             }
@@ -412,7 +412,7 @@ PanelWindow {
                                 }
                                 font.family: Theme.fontFamily
                                 font.pixelSize: 12
-                                color: Qt.rgba(1, 1, 1, 0.85)
+                                color: Theme.colorOnSurfaceVariant
                                 wrapMode: Text.Wrap
                                 maximumLineCount: 3
                                 elide: Text.ElideRight
@@ -430,8 +430,8 @@ PanelWindow {
                                         height: 20
                                         implicitWidth: actLabel.implicitWidth + 10
                                         radius: 5
-                                        color: actMouse.containsMouse ? Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.28) : Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.14)
-                                        border.color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.3)
+                                        color: actMouse.containsMouse ? Theme.primaryContainer : Theme.secondaryContainer
+                                        border.color: actMouse.containsMouse ? Theme.primary : Theme.outlineVariant
                                         border.width: 1
 
                                         Text {
@@ -440,7 +440,7 @@ PanelWindow {
                                             text: modelData.text || ""
                                             font.family: Theme.fontFamily
                                             font.pixelSize: 10
-                                            color: Theme.foreground
+                                            color: actMouse.containsMouse ? Theme.colorOnPrimaryContainer : Theme.colorOnSecondaryContainer
                                             renderType: Text.NativeRendering
                                         }
 
@@ -477,7 +477,7 @@ PanelWindow {
                                 layer.enabled: true
                                 layer.samples: 4
                                 ShapePath {
-                                    strokeColor: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.22)
+                                    strokeColor: Theme.outlineVariant
                                     strokeWidth: 2
                                     fillColor: "transparent"
                                     PathAngleArc {
@@ -496,7 +496,7 @@ PanelWindow {
                                 layer.enabled: true
                                 layer.samples: 4
                                 ShapePath {
-                                    strokeColor: delegateRoot.isCritical ? Theme.alertRed : Theme.foreground
+                                    strokeColor: delegateRoot.isCritical ? Theme.error : Theme.primary
                                     strokeWidth: 2.2
                                     fillColor: "transparent"
                                     capStyle: ShapePath.RoundCap
@@ -516,7 +516,7 @@ PanelWindow {
                                 text: "✕"
                                 font.pixelSize: 12
                                 font.bold: true
-                                color: closeMouse.containsMouse ? (delegateRoot.isCritical ? Theme.alertRed : Qt.lighter(Theme.foreground, 1.25)) : (delegateRoot.isCritical ? Theme.alertRed : Theme.foreground)
+                                color: closeMouse.containsMouse ? (delegateRoot.isCritical ? Theme.colorOnErrorContainer : Theme.primary) : (delegateRoot.isCritical ? Theme.error : Theme.colorOnSurfaceVariant)
                                 renderType: Text.NativeRendering
                                 scale: closeMouse.pressed ? 0.85 : (closeMouse.containsMouse ? 1.15 : 1.0)
                                 Behavior on scale { NumberAnimation { duration: 120 } }

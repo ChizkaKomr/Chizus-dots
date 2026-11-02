@@ -75,4 +75,8 @@ ShellRoot {
             }
         }
     }
+
+    ClipboardManager {
+        id: clipboardManager
+    }
 }

@@ -113,7 +113,7 @@ PanelWindow {
         width: 380
         implicitHeight: contentCol.implicitHeight + 28
         color: Theme.background
-        border.color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.3)
+        border.color: Theme.outlineVariant
         border.width: 1
         radius: 18
         clip: true
@@ -160,7 +160,7 @@ PanelWindow {
 
                     Text {
                         text: Qt.formatDateTime(clockCol.currentTime, "hh:mm")
-                        color: Theme.foreground
+                        color: Theme.colorOnSurface
                         font.family: Theme.fontFamily
                         font.pixelSize: 28
                         font.bold: true
@@ -169,7 +169,7 @@ PanelWindow {
 
                     Text {
                         text: Qt.formatDateTime(clockCol.currentTime, "dddd, MMMM d")
-                        color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.75)
+                        color: Theme.colorOnSurfaceVariant
                         font.family: Theme.fontFamily
                         font.pixelSize: 12
                         renderType: Text.NativeRendering
@@ -186,8 +186,8 @@ PanelWindow {
                     radius: 17
 
                     scale: dndMouse.pressed ? 0.92 : (dndMouse.containsMouse ? 1.04 : 1.0)
-                    color: NotificationService.dnd ? Qt.rgba(Theme.alertRed.r, Theme.alertRed.g, Theme.alertRed.b, 0.22) : (dndMouse.containsMouse ? Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.18) : Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.08))
-                    border.color: NotificationService.dnd ? Theme.alertRed : (dndMouse.containsMouse ? Theme.foreground : Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.3))
+                    color: NotificationService.dnd ? Theme.primaryContainer : (dndMouse.containsMouse ? Theme.surfaceContainerHighest : Theme.surfaceContainerHigh)
+                    border.color: NotificationService.dnd ? Theme.primary : (dndMouse.containsMouse ? Theme.outline : Theme.outlineVariant)
                     border.width: 1
 
                     Behavior on scale {
@@ -211,7 +211,7 @@ PanelWindow {
                             text: NotificationService.dnd ? "󰂛" : "󰂚"
                             font.family: Theme.iconFamily
                             font.pixelSize: 14
-                            color: NotificationService.dnd ? Theme.alertRed : Theme.foreground
+                            color: NotificationService.dnd ? Theme.colorOnPrimaryContainer : Theme.colorOnSurfaceVariant
                             renderType: Text.NativeRendering
                             rotation: NotificationService.dnd ? -15 : 0
                             scale: NotificationService.dnd ? 1.15 : 1.0
@@ -234,7 +234,7 @@ PanelWindow {
                             font.family: Theme.fontFamily
                             font.pixelSize: 12
                             font.bold: true
-                            color: NotificationService.dnd ? Theme.alertRed : Theme.foreground
+                            color: NotificationService.dnd ? Theme.colorOnPrimaryContainer : Theme.colorOnSurfaceVariant
                             renderType: Text.NativeRendering
 
                             Behavior on color {
@@ -257,7 +257,7 @@ PanelWindow {
             Rectangle {
                 width: parent.width
                 height: 1
-                color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.15)
+                color: Theme.outlineVariant
             }
 
             // Notifications Header with count badge & Clear all
@@ -275,7 +275,7 @@ PanelWindow {
                         font.family: Theme.fontFamily
                         font.pixelSize: 13
                         font.bold: true
-                        color: Theme.foreground
+                        color: Theme.colorOnSurface
                         renderType: Text.NativeRendering
                     }
 
@@ -284,7 +284,7 @@ PanelWindow {
                         width: countText.implicitWidth + 10
                         height: 18
                         radius: 9
-                        color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.15)
+                        color: Theme.primaryContainer
                         anchors.verticalCenter: parent.verticalCenter
 
                         scale: visible ? 1.0 : 0.0
@@ -299,7 +299,7 @@ PanelWindow {
                             font.family: Theme.fontFamily
                             font.pixelSize: 11
                             font.bold: true
-                            color: Theme.foreground
+                            color: Theme.colorOnPrimaryContainer
                             renderType: Text.NativeRendering
                         }
                     }
@@ -314,7 +314,7 @@ PanelWindow {
                     implicitHeight: 22
                     radius: 11
                     scale: clearMouse.pressed ? 0.93 : (clearMouse.containsMouse ? 1.05 : 1.0)
-                    color: clearMouse.containsMouse ? Qt.rgba(Theme.alertRed.r, Theme.alertRed.g, Theme.alertRed.b, 0.2) : "transparent"
+                    color: clearMouse.containsMouse ? Theme.errorContainer : "transparent"
 
                     Behavior on scale {
                         NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
@@ -333,7 +333,7 @@ PanelWindow {
                             text: "󰎟"
                             font.family: Theme.iconFamily
                             font.pixelSize: 12
-                            color: clearMouse.containsMouse ? Theme.alertRed : Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.7)
+                            color: clearMouse.containsMouse ? Theme.colorOnErrorContainer : Theme.colorOnSurfaceVariant
                             renderType: Text.NativeRendering
                         }
 
@@ -343,7 +343,7 @@ PanelWindow {
                             font.family: Theme.fontFamily
                             font.pixelSize: 11
                             font.bold: true
-                            color: clearMouse.containsMouse ? Theme.alertRed : Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.7)
+                            color: clearMouse.containsMouse ? Theme.colorOnErrorContainer : Theme.colorOnSurfaceVariant
                             renderType: Text.NativeRendering
                         }
                     }
@@ -387,7 +387,7 @@ PanelWindow {
                         text: ""
                         font.family: Theme.iconFamily
                         font.pixelSize: 28
-                        color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.35)
+                        color: Theme.colorOnSurfaceVariant
                         renderType: Text.NativeRendering
                     }
 
@@ -396,7 +396,7 @@ PanelWindow {
                         text: "No notifications"
                         font.family: Theme.fontFamily
                         font.pixelSize: 13
-                        color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.5)
+                        color: Theme.colorOnSurfaceVariant
                         renderType: Text.NativeRendering
                     }
                 }
@@ -467,8 +467,8 @@ PanelWindow {
                         height: 84
                         radius: 12
                         scale: cardMouse.pressed ? 0.98 : (cardMouse.containsMouse ? 1.01 : 1.0)
-                        color: cardMouse.containsMouse ? Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.12) : Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.06)
-                        border.color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, cardMouse.containsMouse ? 0.35 : 0.15)
+                        color: cardMouse.containsMouse ? Theme.surfaceContainerHighest : Theme.surfaceContainerHigh
+                        border.color: cardMouse.containsMouse ? Theme.outline : Theme.outlineVariant
                         border.width: 1
 
                         Behavior on width {
@@ -493,7 +493,7 @@ PanelWindow {
                             anchors.left: parent.left
                             anchors.leftMargin: 10
                             anchors.verticalCenter: parent.verticalCenter
-                            color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.1)
+                            color: Theme.secondaryContainer
 
                             IconImage {
                                 id: cardIcon
@@ -509,7 +509,7 @@ PanelWindow {
                                 text: ""
                                 font.family: Theme.iconFamily
                                 font.pixelSize: 18
-                                color: Theme.foreground
+                                color: Theme.colorOnSecondaryContainer
                                 renderType: Text.NativeRendering
                             }
                         }
@@ -530,20 +530,20 @@ PanelWindow {
                                     font.family: Theme.fontFamily
                                     font.pixelSize: 11
                                     font.bold: true
-                                    color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.6)
+                                    color: Theme.colorOnSurfaceVariant
                                     renderType: Text.NativeRendering
                                 }
                                 Text {
                                     text: "•"
                                     font.pixelSize: 10
-                                    color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.4)
+                                    color: Theme.colorOnSurfaceVariant
                                     renderType: Text.NativeRendering
                                 }
                                 Text {
                                     text: modelData ? NotificationService.formatTimestamp(modelData.id) : ""
                                     font.family: Theme.fontFamily
                                     font.pixelSize: 11
-                                    color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.5)
+                                    color: Theme.colorOnSurfaceVariant
                                     renderType: Text.NativeRendering
                                 }
                             }
@@ -554,7 +554,7 @@ PanelWindow {
                                 font.family: Theme.fontFamily
                                 font.pixelSize: 13
                                 font.bold: true
-                                color: Theme.foreground
+                                color: Theme.colorOnSurface
                                 elide: Text.ElideRight
                                 maximumLineCount: 1
                                 renderType: Text.NativeRendering
@@ -565,7 +565,7 @@ PanelWindow {
                                 text: modelData ? (modelData.body || "") : ""
                                 font.family: Theme.fontFamily
                                 font.pixelSize: 11
-                                color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.8)
+                                color: Theme.colorOnSurfaceVariant
                                 elide: Text.ElideRight
                                 maximumLineCount: 1
                                 renderType: Text.NativeRendering
@@ -582,8 +582,8 @@ PanelWindow {
                                         height: 20
                                         implicitWidth: actionLabel.implicitWidth + 10
                                         radius: 5
-                                        color: actionMouse.containsMouse ? Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.25) : Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.12)
-                                        border.color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.25)
+                                        color: actionMouse.containsMouse ? Theme.primaryContainer : Theme.secondaryContainer
+                                        border.color: actionMouse.containsMouse ? Theme.primary : Theme.outlineVariant
                                         border.width: 1
 
                                         Text {
@@ -592,7 +592,7 @@ PanelWindow {
                                             text: modelData.text || ""
                                             font.family: Theme.fontFamily
                                             font.pixelSize: 10
-                                            color: Theme.foreground
+                                            color: actionMouse.containsMouse ? Theme.colorOnPrimaryContainer : Theme.colorOnSecondaryContainer
                                             renderType: Text.NativeRendering
                                         }
 
@@ -621,7 +621,7 @@ PanelWindow {
                             anchors.top: parent.top
                             anchors.topMargin: 8
                             scale: closeCardMouse.pressed ? 0.88 : (closeCardMouse.containsMouse ? 1.15 : 1.0)
-                            color: closeCardMouse.containsMouse ? Qt.rgba(Theme.alertRed.r, Theme.alertRed.g, Theme.alertRed.b, 0.25) : "transparent"
+                            color: closeCardMouse.containsMouse ? Theme.errorContainer : "transparent"
 
                             Behavior on scale {
                                 NumberAnimation { duration: 150; easing.type: Easing.OutBack }
@@ -634,7 +634,7 @@ PanelWindow {
                                 anchors.centerIn: parent
                                 text: "✕"
                                 font.pixelSize: 10
-                                color: closeCardMouse.containsMouse ? Theme.alertRed : Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.5)
+                                color: closeCardMouse.containsMouse ? Theme.colorOnErrorContainer : Theme.colorOnSurfaceVariant
                                 renderType: Text.NativeRendering
 
                                 Behavior on color {

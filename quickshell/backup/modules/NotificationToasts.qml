@@ -20,7 +20,7 @@ PanelWindow {
     margins.top: 54
     margins.right: 12
 
-    visible: activeToasts.length > 0
+    visible: toastModel.count > 0
     color: "transparent"
 
     implicitWidth: 440
@@ -31,7 +31,55 @@ PanelWindow {
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
     exclusionMode: ExclusionMode.Ignore
 
-    property var activeToasts: []
+    mask: Region {
+        item: toastModel.count > 0 ? toastCol : null
+    }
+
+    property int nextToastUid: 0
+
+    ListModel {
+        id: toastModel
+    }
+
+    function findToastIndexByUid(uid) {
+        for (let i = 0; i < toastModel.count; ++i) {
+            const item = toastModel.get(i);
+            if (item && item.toastUid === uid) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    function findToastIndexByNotifId(notifId) {
+        for (let i = 0; i < toastModel.count; ++i) {
+            const item = toastModel.get(i);
+            if (item && item.notifId === notifId) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    function findToastIndex(notifId) {
+        return findToastIndexByNotifId(notifId);
+    }
+
+    function removeToastByUid(uid) {
+        const idx = findToastIndexByUid(uid);
+        if (idx !== -1) {
+            toastModel.remove(idx);
+        }
+    }
+
+    function removeToast(notifId) {
+        for (let i = toastModel.count - 1; i >= 0; --i) {
+            const item = toastModel.get(i);
+            if (item && item.notifId === notifId) {
+                toastModel.remove(i);
+            }
+        }
+    }
 
     Connections {
         target: NotificationService
@@ -45,19 +93,26 @@ PanelWindow {
 
             if (NotificationService.dnd && !isCrit) return;
 
-            const existing = activeToasts.find(t => t && t.id === notif.id);
-            if (existing) return;
-
-            let current = [...activeToasts];
-            if (current.length >= 4) {
-                current = current.slice(0, 3);
+            const nid = (notif.id !== undefined) ? Number(notif.id) : 0;
+            const existingIdx = root.findToastIndexByNotifId(nid);
+            if (existingIdx !== -1) {
+                toastModel.remove(existingIdx);
             }
-            activeToasts = [notif, ...current];
-        }
-    }
 
-    function removeToast(notifId) {
-        activeToasts = activeToasts.filter(t => t && t.id !== notifId);
+            while (toastModel.count >= 4) {
+                toastModel.remove(toastModel.count - 1);
+            }
+
+            const initialDuration = isCrit ? 5000 : 2500;
+            const uid = ++root.nextToastUid;
+            toastModel.insert(0, {
+                toastUid: uid,
+                notifId: nid,
+                notif: notif,
+                initialDuration: initialDuration,
+                createdAt: Date.now()
+            });
+        }
     }
 
     Column {
@@ -69,30 +124,40 @@ PanelWindow {
         spacing: 6
 
         Repeater {
-            model: root.activeToasts
+            id: toastRepeater
+            model: toastModel
 
             delegate: Item {
                 id: delegateRoot
                 width: 410
                 implicitHeight: card.implicitHeight
 
-                required property var modelData
+                required property int toastUid
+                required property int notifId
+                required property var notif
+                required property real initialDuration
+                required property double createdAt
+
+                readonly property var modelData: notif
 
                 property bool isDismissing: false
+                readonly property var activeCard: (!isDismissing && cardContainer.opacity > 0.05) ? card : null
                 property bool isCritical: Boolean(modelData && (
                     modelData.urgency === NotificationUrgency.Critical ||
                     (modelData.hints && (modelData.hints["urgency"] === 2 || modelData.hints["urgency"] === "2" || modelData.hints["urgency"] === "critical"))
                 ))
 
                 // Normal stays 2.5s (2500ms), Critical stays 5.0s (5000ms)
-                property real totalDuration: isCritical ? 5000 : 2500
-                property real remainingTime: totalDuration
+                property real totalDuration: initialDuration
+                property double expireTime: createdAt + initialDuration
+                property real remainingTime: Math.max(0, expireTime - Date.now())
 
                 property bool isHovered: cardMouse.containsMouse || closeMouse.containsMouse
 
                 onIsHoveredChanged: {
                     if (!isHovered && !isDismissing && modelData) {
                         totalDuration = 1800;
+                        expireTime = Date.now() + 1800;
                         remainingTime = 1800;
                         countdownTimer.restart();
                     }
@@ -104,11 +169,21 @@ PanelWindow {
                     repeat: true
                     running: !delegateRoot.isHovered && !delegateRoot.isDismissing
                     onTriggered: {
-                        delegateRoot.remainingTime = Math.max(0, delegateRoot.remainingTime - 16);
+                        delegateRoot.remainingTime = Math.max(0, delegateRoot.expireTime - Date.now());
                         if (delegateRoot.remainingTime <= 0) {
                             countdownTimer.stop();
                             delegateRoot.dismiss();
                         }
+                    }
+                }
+
+                Timer {
+                    id: forceEvictTimer
+                    interval: 600
+                    repeat: false
+                    running: delegateRoot.isDismissing
+                    onTriggered: {
+                        root.removeToastByUid(delegateRoot.toastUid);
                     }
                 }
 
@@ -123,6 +198,7 @@ PanelWindow {
                 function dismiss() {
                     if (isDismissing) return;
                     isDismissing = true;
+                    countdownTimer.stop();
                     slideOutAnim.restart();
                 }
 
@@ -175,9 +251,7 @@ PanelWindow {
                             easing.type: Easing.InQuad
                         }
                         onFinished: {
-                            if (modelData) {
-                                root.removeToast(modelData.id);
-                            }
+                            root.removeToastByUid(delegateRoot.toastUid);
                         }
                     }
 
@@ -188,7 +262,7 @@ PanelWindow {
                         Rectangle {
                             anchors.fill: parent
                             radius: card.radius
-                            color: Theme.foreground
+                            color: Theme.shadow
                         }
                     }
 
@@ -196,10 +270,10 @@ PanelWindow {
                         source: shadowSource
                         anchors.fill: card
                         shadowEnabled: true
-                        shadowColor: Theme.foreground
+                        shadowColor: Theme.shadow
                         shadowBlur: 1.0
                         shadowScale: 1.05
-                        shadowOpacity: delegateRoot.isHovered ? 0.60 : 0.0
+                        shadowOpacity: delegateRoot.isHovered ? 0.35 : 0.0
                         opacity: shadowOpacity
 
                         Behavior on shadowOpacity {
@@ -215,9 +289,9 @@ PanelWindow {
                         width: 380
                         implicitHeight: Math.max(92, Math.max(iconBox.height + 28, textCol.implicitHeight + (actionsRow.visible ? actionsRow.implicitHeight + 8 : 0) + 24))
                         radius: 22
-                        color: Theme.background
-                        border.color: delegateRoot.isCritical ? Theme.alertRed : Theme.foreground
-                        border.width: 2
+                        color: Theme.surface
+                        border.color: delegateRoot.isCritical ? Theme.error : (delegateRoot.isHovered ? Theme.primary : Theme.outlineVariant)
+                        border.width: 1
                         clip: true
 
                         Item {
@@ -249,7 +323,7 @@ PanelWindow {
                                 Rectangle {
                                     anchors.fill: parent
                                     radius: 18
-                                    color: delegateRoot.isCritical ? Qt.rgba(Theme.alertRed.r, Theme.alertRed.g, Theme.alertRed.b, 0.22) : Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.2)
+                                    color: delegateRoot.isCritical ? Theme.errorContainer : Theme.secondaryContainer
                                 }
 
                                 // Full-bleed image loader for file paths & URLs (e.g. album art cover)
@@ -288,7 +362,7 @@ PanelWindow {
                                     text: delegateRoot.isCritical ? "󰀦" : (modelData && modelData.appName ? "" : "󰂚")
                                     font.family: Theme.iconFamily
                                     font.pixelSize: 26
-                                    color: delegateRoot.isCritical ? Theme.alertRed : Theme.foreground
+                                    color: delegateRoot.isCritical ? Theme.colorOnErrorContainer : Theme.colorOnSecondaryContainer
                                     renderType: Text.NativeRendering
                                 }
                             }
@@ -297,7 +371,7 @@ PanelWindow {
                                 anchors.fill: parent
                                 radius: 18
                                 color: "transparent"
-                                border.color: delegateRoot.isCritical ? Qt.rgba(Theme.alertRed.r, Theme.alertRed.g, Theme.alertRed.b, 0.5) : Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.35)
+                                border.color: delegateRoot.isCritical ? Theme.error : "transparent"
                                 border.width: 1
                             }
                         }
@@ -322,7 +396,7 @@ PanelWindow {
                                 font.family: Theme.fontFamily
                                 font.pixelSize: 15
                                 font.bold: true
-                                color: "#ffffff"
+                                color: Theme.colorOnSurface
                                 elide: Text.ElideRight
                                 renderType: Text.NativeRendering
                             }
@@ -338,7 +412,7 @@ PanelWindow {
                                 }
                                 font.family: Theme.fontFamily
                                 font.pixelSize: 12
-                                color: Qt.rgba(1, 1, 1, 0.85)
+                                color: Theme.colorOnSurfaceVariant
                                 wrapMode: Text.Wrap
                                 maximumLineCount: 3
                                 elide: Text.ElideRight
@@ -356,8 +430,8 @@ PanelWindow {
                                         height: 20
                                         implicitWidth: actLabel.implicitWidth + 10
                                         radius: 5
-                                        color: actMouse.containsMouse ? Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.28) : Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.14)
-                                        border.color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.3)
+                                        color: actMouse.containsMouse ? Theme.primaryContainer : Theme.secondaryContainer
+                                        border.color: actMouse.containsMouse ? Theme.primary : Theme.outlineVariant
                                         border.width: 1
 
                                         Text {
@@ -366,7 +440,7 @@ PanelWindow {
                                             text: modelData.text || ""
                                             font.family: Theme.fontFamily
                                             font.pixelSize: 10
-                                            color: Theme.foreground
+                                            color: actMouse.containsMouse ? Theme.colorOnPrimaryContainer : Theme.colorOnSecondaryContainer
                                             renderType: Text.NativeRendering
                                         }
 
@@ -376,7 +450,11 @@ PanelWindow {
                                             hoverEnabled: true
                                             cursorShape: Qt.PointingHandCursor
                                             onClicked: {
-                                                if (modelData) modelData.invoke();
+                                                if (modelData) {
+                                                    try {
+                                                        modelData.invoke();
+                                                    } catch (e) {}
+                                                }
                                                 delegateRoot.dismiss();
                                             }
                                         }
@@ -399,7 +477,7 @@ PanelWindow {
                                 layer.enabled: true
                                 layer.samples: 4
                                 ShapePath {
-                                    strokeColor: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.22)
+                                    strokeColor: Theme.outlineVariant
                                     strokeWidth: 2
                                     fillColor: "transparent"
                                     PathAngleArc {
@@ -418,7 +496,7 @@ PanelWindow {
                                 layer.enabled: true
                                 layer.samples: 4
                                 ShapePath {
-                                    strokeColor: delegateRoot.isCritical ? Theme.alertRed : Theme.foreground
+                                    strokeColor: delegateRoot.isCritical ? Theme.error : Theme.primary
                                     strokeWidth: 2.2
                                     fillColor: "transparent"
                                     capStyle: ShapePath.RoundCap
@@ -438,7 +516,7 @@ PanelWindow {
                                 text: "✕"
                                 font.pixelSize: 12
                                 font.bold: true
-                                color: closeMouse.containsMouse ? (delegateRoot.isCritical ? Theme.alertRed : Qt.lighter(Theme.foreground, 1.25)) : (delegateRoot.isCritical ? Theme.alertRed : Theme.foreground)
+                                color: closeMouse.containsMouse ? (delegateRoot.isCritical ? Theme.colorOnErrorContainer : Theme.primary) : (delegateRoot.isCritical ? Theme.error : Theme.colorOnSurfaceVariant)
                                 renderType: Text.NativeRendering
                                 scale: closeMouse.pressed ? 0.85 : (closeMouse.containsMouse ? 1.15 : 1.0)
                                 Behavior on scale { NumberAnimation { duration: 120 } }
@@ -451,7 +529,11 @@ PanelWindow {
                                 cursorShape: Qt.PointingHandCursor
                                 onClicked: {
                                     delegateRoot.dismiss();
-                                    if (modelData) NotificationService.dismiss(modelData);
+                                    if (modelData) {
+                                        try {
+                                            NotificationService.dismiss(modelData);
+                                        } catch (e) {}
+                                    }
                                 }
                             }
                         }
@@ -464,9 +546,11 @@ PanelWindow {
                             cursorShape: Qt.PointingHandCursor
                             onClicked: {
                                 if (modelData) {
-                                    if (modelData.actions && modelData.actions.length > 0) {
-                                        modelData.actions[0].invoke();
-                                    }
+                                    try {
+                                        if (modelData.actions && modelData.actions.length > 0) {
+                                            modelData.actions[0].invoke();
+                                        }
+                                    } catch (e) {}
                                 }
                                 delegateRoot.dismiss();
                             }

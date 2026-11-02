@@ -17,7 +17,7 @@ Rectangle {
     radius: 26
     clip: true
 
-    border.color: Qt.rgba(Theme.secondary.r, Theme.secondary.g, Theme.secondary.b, 0.2)
+    border.color: Theme.outlineVariant
     border.width: 1
 
     // Prevent clicks inside the panel from propagating to the dismiss backdrop
@@ -103,7 +103,9 @@ Rectangle {
             width: parent.width
             height: masterCol.implicitHeight + 24
             radius: 18
-            color: Qt.rgba(Theme.secondary.r, Theme.secondary.g, Theme.secondary.b, 0.1)
+            color: Theme.surfaceContainerHighest
+            border.color: Theme.outlineVariant
+            border.width: 1
 
             Column {
                 id: masterCol
@@ -117,7 +119,7 @@ Rectangle {
 
                     Text {
                         text: "MASTER VOLUME"
-                        color: Theme.foreground
+                        color: Theme.colorOnSurfaceVariant
                         font.family: Theme.fontFamily
                         font.pixelSize: 12
                         font.bold: true
@@ -128,7 +130,7 @@ Rectangle {
                     Text {
                         width: parent.width - 120
                         text: Pipewire.defaultAudioSink ? (Pipewire.defaultAudioSink.description || Pipewire.defaultAudioSink.name) : "No Default Sink"
-                        color: Theme.secondary
+                        color: Theme.colorOnSurface
                         font.family: Theme.fontFamily
                         font.pixelSize: 11
                         elide: Text.ElideRight
@@ -153,7 +155,9 @@ Rectangle {
             width: parent.width
             height: 52
             radius: 26
-            color: Qt.rgba(Theme.secondary.r, Theme.secondary.g, Theme.secondary.b, 0.15)
+            color: Theme.surfaceContainerHigh
+            border.color: Theme.outlineVariant
+            border.width: 1
 
             // Animated Tab Highlight Pill
             Rectangle {
@@ -163,7 +167,7 @@ Rectangle {
                 y: 4
                 x: 4 + root.currentTab * width
                 radius: 22
-                color: Theme.foreground
+                color: Theme.primary
 
                 Behavior on x {
                     NumberAnimation { duration: 220; easing.type: Easing.OutCubic }
@@ -185,7 +189,7 @@ Rectangle {
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
                             text: ""
-                            color: root.currentTab === 0 ? Theme.background : Theme.foreground
+                            color: root.currentTab === 0 ? Theme.colorOnPrimary : Theme.colorOnSurfaceVariant
                             font.family: Theme.iconFamily
                             font.pixelSize: 18
                             renderType: Text.NativeRendering
@@ -198,7 +202,7 @@ Rectangle {
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
                             text: "output"
-                            color: root.currentTab === 0 ? Theme.background : Theme.foreground
+                            color: root.currentTab === 0 ? Theme.colorOnPrimary : Theme.colorOnSurfaceVariant
                             font.family: Theme.fontFamily
                             font.pixelSize: 19
                             font.bold: true
@@ -229,7 +233,7 @@ Rectangle {
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
                             text: "󰍬"
-                            color: root.currentTab === 1 ? Theme.background : Theme.foreground
+                            color: root.currentTab === 1 ? Theme.colorOnPrimary : Theme.colorOnSurfaceVariant
                             font.family: Theme.iconFamily
                             font.pixelSize: 18
                             renderType: Text.NativeRendering
@@ -242,7 +246,7 @@ Rectangle {
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
                             text: "input"
-                            color: root.currentTab === 1 ? Theme.background : Theme.foreground
+                            color: root.currentTab === 1 ? Theme.colorOnPrimary : Theme.colorOnSurfaceVariant
                             font.family: Theme.fontFamily
                             font.pixelSize: 19
                             font.bold: true
@@ -300,7 +304,7 @@ Rectangle {
 
                         Text {
                             text: "APPLICATIONS"
-                            color: Theme.secondary
+                            color: Theme.colorOnSurfaceVariant
                             font.family: Theme.fontFamily
                             font.pixelSize: 12
                             font.bold: true
@@ -334,19 +338,17 @@ Rectangle {
                                 Text {
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     text: "󰝛"
-                                    color: Theme.secondary
+                                    color: Theme.colorOnSurfaceVariant
                                     font.family: Theme.iconFamily
                                     font.pixelSize: 24
-                                    opacity: 0.5
                                 }
 
                                 Text {
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     text: "No active application audio streams"
-                                    color: Theme.secondary
+                                    color: Theme.colorOnSurfaceVariant
                                     font.family: Theme.fontFamily
                                     font.pixelSize: 13
-                                    opacity: 0.7
                                 }
                             }
                         }
@@ -382,7 +384,7 @@ Rectangle {
 
                         Text {
                             text: "SELECT INPUT DEVICE"
-                            color: Theme.secondary
+                            color: Theme.colorOnSurfaceVariant
                             font.family: Theme.fontFamily
                             font.pixelSize: 12
                             font.bold: true
@@ -400,9 +402,9 @@ Rectangle {
                                 width: inputContent.width
                                 height: 50
                                 radius: 14
-                                color: isSelected ? Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.15) : Qt.rgba(Theme.secondary.r, Theme.secondary.g, Theme.secondary.b, 0.08)
-                                border.color: isSelected ? Theme.foreground : "transparent"
-                                border.width: 1.5
+                                color: isSelected ? Theme.secondaryContainer : Theme.surfaceContainerHigh
+                                border.color: isSelected ? Theme.primary : Theme.outlineVariant
+                                border.width: isSelected ? 1.5 : 1
 
                                 Row {
                                     anchors.fill: parent
@@ -413,7 +415,7 @@ Rectangle {
                                     Text {
                                         anchors.verticalCenter: parent.verticalCenter
                                         text: isSelected ? "󰍬" : "󰍭"
-                                        color: isSelected ? Theme.foreground : Theme.secondary
+                                        color: isSelected ? Theme.colorOnSecondaryContainer : Theme.colorOnSurfaceVariant
                                         font.family: Theme.iconFamily
                                         font.pixelSize: 18
                                     }
@@ -422,7 +424,7 @@ Rectangle {
                                         anchors.verticalCenter: parent.verticalCenter
                                         width: parent.width - 70
                                         text: modelData.description || modelData.name
-                                        color: isSelected ? Theme.foreground : Theme.secondary
+                                        color: isSelected ? Theme.colorOnSecondaryContainer : Theme.colorOnSurfaceVariant
                                         font.family: Theme.fontFamily
                                         font.pixelSize: 14
                                         font.bold: isSelected
@@ -435,8 +437,8 @@ Rectangle {
                                         width: 18
                                         height: 18
                                         radius: 9
-                                        color: isSelected ? Theme.foreground : "transparent"
-                                        border.color: isSelected ? Theme.foreground : Theme.secondary
+                                        color: isSelected ? Theme.primary : "transparent"
+                                        border.color: isSelected ? Theme.primary : Theme.outline
                                         border.width: 2
 
                                         Rectangle {
@@ -444,7 +446,7 @@ Rectangle {
                                             width: 8
                                             height: 8
                                             radius: 4
-                                            color: Theme.background
+                                            color: Theme.colorOnPrimary
                                             visible: isSelected
                                         }
                                     }
@@ -468,7 +470,7 @@ Rectangle {
 
                         Text {
                             text: "INPUT VOLUME"
-                            color: Theme.secondary
+                            color: Theme.colorOnSurfaceVariant
                             font.family: Theme.fontFamily
                             font.pixelSize: 12
                             font.bold: true
@@ -493,13 +495,12 @@ Rectangle {
                         Rectangle {
                             width: parent.width
                             height: 1
-                            color: Theme.secondary
-                            opacity: 0.18
+                            color: Theme.outlineVariant
                         }
 
                         Text {
                             text: "RECORDING APPLICATIONS"
-                            color: Theme.secondary
+                            color: Theme.colorOnSurfaceVariant
                             font.family: Theme.fontFamily
                             font.pixelSize: 12
                             font.bold: true

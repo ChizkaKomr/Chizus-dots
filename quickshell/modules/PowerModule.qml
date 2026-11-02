@@ -11,10 +11,6 @@ Rectangle {
     implicitHeight: Theme.pillHeight
     implicitWidth: 40
 
-    scale: mouseArea.pressed ? 0.92 : (mouseArea.containsMouse ? 1.05 : 1.0)
-    Behavior on scale {
-        NumberAnimation { duration: 150; easing.type: Easing.OutBack }
-    }
 
     Process {
         id: launcher

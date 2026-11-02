@@ -5,10 +5,10 @@ import ".."
 Rectangle {
     id: root
 
-    color: Theme.background
-    radius: Theme.pillRadius
+    color: "transparent"
+    radius: 0
     implicitHeight: Theme.pillHeight
-    implicitWidth: (root.showAlt ? dateText.implicitWidth : timeText.implicitWidth) + 24
+    implicitWidth: (root.showAlt ? dateText.implicitWidth : timeText.implicitWidth) + 8
 
     Behavior on implicitWidth {
         NumberAnimation {

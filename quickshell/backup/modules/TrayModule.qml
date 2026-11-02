@@ -58,13 +58,13 @@ Rectangle {
                     onClicked: mouse => {
                         if (mouse.button === Qt.RightButton) {
                             if (modelData.hasMenu && trayMenu.menuHandle) {
-                                trayMenu.visible = !trayMenu.visible;
+                                trayMenu.toggle();
                             } else {
                                 modelData.secondaryActivate();
                             }
                         } else {
                             if (modelData.onlyMenu) {
-                                if (trayMenu.menuHandle) trayMenu.visible = !trayMenu.visible;
+                                if (trayMenu.menuHandle) trayMenu.toggle();
                             } else {
                                 modelData.activate();
                             }

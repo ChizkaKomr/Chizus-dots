@@ -48,24 +48,41 @@ ShellRoot {
                         WorkspacesModule {}
                     }
 
-                    // Right modules: Tray, Notifications, Audio, Language, Clock
-                    Row {
+                    // Right modules: Tray, Notifications, Audio, Language, Clock — all in one pill
+                    Rectangle {
                         anchors.right: parent.right
                         anchors.rightMargin: 12
                         anchors.verticalCenter: parent.verticalCenter
-                        spacing: 6
 
-                        TrayModule {
-                            barWindow: barWindow
+                        color: Theme.background
+                        radius: Theme.pillRadius
+                        implicitHeight: Theme.pillHeight
+                        implicitWidth: rightRow.implicitWidth + 20
+
+                        Row {
+                            id: rightRow
+                            anchors.centerIn: parent
+                            spacing: 6
+
+                            TrayModule {
+                                barWindow: barWindow
+                            }
+                            Rectangle {
+                                width: 2
+                                height: Theme.pillHeight * 0.55 - 1
+                                radius: 1
+                                color: Theme.secondaryContainer
+                                anchors.verticalCenter: parent.verticalCenter
+                            }
+                            NotificationModule {
+                                barWindow: barWindow
+                            }
+                            AudioModule {
+                                barWindow: barWindow
+                            }
+                            LanguageModule {}
+                            ClockModule {}
                         }
-                        NotificationModule {
-                            barWindow: barWindow
-                        }
-                        AudioModule {
-                            barWindow: barWindow
-                        }
-                        LanguageModule {}
-                        ClockModule {}
                     }
                 }
             }
@@ -74,5 +91,9 @@ ShellRoot {
                 parentScreen: modelData
             }
         }
+    }
+
+    ClipboardManager {
+        id: clipboardManager
     }
 }

@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Effects
 import Quickshell
 import Quickshell.Services.SystemTray
 import Quickshell.Widgets
@@ -9,65 +10,96 @@ Rectangle {
 
     property var barWindow: null
 
-    color: Theme.background
-    radius: Theme.pillRadius
+    color: "transparent"
+    radius: 0
     implicitHeight: Theme.pillHeight
-    visible: trayRepeater.count > 0
-    implicitWidth: visible ? row.implicitWidth + 20 : 0 // padding: 2px 10px
+    implicitWidth: trayListView.count > 0 ? trayListView.count * (21 + 10) - 10 + 4 : 0
+    visible: implicitWidth > 0
+
+    Behavior on implicitWidth {
+        NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
+    }
 
     function getItems() {
         if (!SystemTray.items || !SystemTray.items.values) return [];
         return [...SystemTray.items.values].reverse();
     }
 
-    Row {
-        id: row
+    ListView {
+        id: trayListView
         anchors.centerIn: parent
+        orientation: ListView.Horizontal
         spacing: 10
+        width: count > 0 ? count * (21 + 10) - 10 : 0
+        height: 21
+        model: root.getItems()
+        clip: false
 
-        Repeater {
-            id: trayRepeater
-            model: root.getItems()
+        add: Transition {
+            ParallelAnimation {
+                NumberAnimation { property: "opacity"; from: 0; to: 1; duration: 200; easing.type: Easing.OutCubic }
+                NumberAnimation { property: "scale"; from: 0.5; to: 1.0; duration: 200; easing.type: Easing.OutBack }
+            }
+        }
 
-            Item {
-                id: trayItem
-                width: 21
-                height: 21
-                anchors.verticalCenter: parent.verticalCenter
+        remove: Transition {
+            ParallelAnimation {
+                NumberAnimation { property: "opacity"; from: 1; to: 0; duration: 150; easing.type: Easing.InCubic }
+                NumberAnimation { property: "scale"; from: 1.0; to: 0.5; duration: 150; easing.type: Easing.InCubic }
+            }
+        }
 
-                TrayMenu {
-                    id: trayMenu
-                    parentWindow: root.barWindow
-                    targetItem: trayItem
-                    menuHandle: modelData.menu
-                }
+        displaced: Transition {
+            NumberAnimation { property: "x"; duration: 200; easing.type: Easing.OutCubic }
+        }
 
-                IconImage {
-                    id: iconImg
-                    anchors.fill: parent
-                    source: modelData.icon
-                }
+        delegate: Item {
+            id: trayItem
+            width: 21
+            height: 21
 
-                MouseArea {
-                    id: mouseArea
-                    anchors.fill: parent
-                    acceptedButtons: Qt.LeftButton | Qt.RightButton
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
+            required property var modelData
 
-                    onClicked: mouse => {
-                        if (mouse.button === Qt.RightButton) {
-                            if (modelData.hasMenu && trayMenu.menuHandle) {
-                                trayMenu.visible = !trayMenu.visible;
-                            } else {
-                                modelData.secondaryActivate();
-                            }
+            TrayMenu {
+                id: trayMenu
+                parentWindow: root.barWindow
+                targetItem: trayItem
+                menuHandle: trayItem.modelData.menu
+            }
+
+            IconImage {
+                id: iconImg
+                anchors.fill: parent
+                source: trayItem.modelData.icon
+                visible: false
+            }
+
+            MultiEffect {
+                source: iconImg
+                anchors.fill: iconImg
+                colorization: 1.0
+                colorizationColor: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 1.0)
+            }
+
+            MouseArea {
+                id: mouseArea
+                anchors.fill: parent
+                acceptedButtons: Qt.LeftButton | Qt.RightButton
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+
+                onClicked: mouse => {
+                    if (mouse.button === Qt.RightButton) {
+                        if (trayItem.modelData.hasMenu && trayMenu.menuHandle) {
+                            trayMenu.toggle();
                         } else {
-                            if (modelData.onlyMenu) {
-                                if (trayMenu.menuHandle) trayMenu.visible = !trayMenu.visible;
-                            } else {
-                                modelData.activate();
-                            }
+                            trayItem.modelData.secondaryActivate();
+                        }
+                    } else {
+                        if (trayItem.modelData.onlyMenu) {
+                            if (trayMenu.menuHandle) trayMenu.toggle();
+                        } else {
+                            trayItem.modelData.activate();
                         }
                     }
                 }

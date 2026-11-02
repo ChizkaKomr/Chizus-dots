@@ -26,10 +26,14 @@ Item {
     property real savedVolume: 0.8
 
     implicitWidth: 380
-    implicitHeight: 64
+    implicitHeight: 60
 
     function setVolume(val) {
-        const clamped = Math.max(0.0, Math.min(root.maxVolume, val));
+        let clamped = Math.max(0.0, Math.min(root.maxVolume, val));
+        // Subtle magnetic snap near exactly 1.0 (100% normal max)
+        if (Math.abs(clamped - 1.0) < 0.015) {
+            clamped = 1.0;
+        }
         if (root.node && root.node.audio) {
             root.node.audio.volume = clamped;
             if (clamped > 0.005 && root.node.audio.muted) {
@@ -82,27 +86,25 @@ Item {
     Row {
         id: rowContainer
         anchors.fill: parent
-        spacing: 14
+        spacing: 12
 
-        // 1. Smart Mute / App Icon Button (matching the magenta rounded square in Figma)
+        // 1. Material Design 3 Mute / App Icon Button
         Rectangle {
             id: muteBtn
-            width: 44
-            height: 44
+            width: 36
+            height: 36
             anchors.verticalCenter: parent.verticalCenter
-            radius: 12
-            color: root.isMuted ? Theme.secondary : Theme.foreground
-            opacity: root.isMuted ? 0.35 : 0.95
+            radius: 18
+            color: root.isMuted ? Theme.errorContainer : (btnArea.pressed ? Theme.secondaryContainer : (btnArea.containsMouse ? Theme.surfaceContainerHighest : "transparent"))
+            border.color: root.isMuted ? Theme.alertRed : (btnArea.containsMouse ? Theme.outlineVariant : "transparent")
+            border.width: 1
 
-            scale: btnArea.pressed ? 0.92 : (btnArea.containsMouse ? 1.05 : 1.0)
+            scale: btnArea.pressed ? 0.9 : 1.0
             Behavior on scale {
                 NumberAnimation { duration: 150; easing.type: Easing.OutBack }
             }
             Behavior on color {
                 ColorAnimation { duration: 150 }
-            }
-            Behavior on opacity {
-                NumberAnimation { duration: 150 }
             }
 
             // System App Icon if available
@@ -114,15 +116,19 @@ Item {
                 source: root.iconName !== "" ? (root.iconName.includes("/") ? root.iconName : Quickshell.iconPath(root.iconName, true)) : ""
             }
 
-            // Font/Symbol icon fallback
+            // Clean Material 3 style icon fallback
             Text {
                 anchors.centerIn: parent
                 visible: !sysIcon.visible
                 text: root.getFallbackIcon()
-                color: Theme.background
+                color: root.isMuted ? Theme.colorOnErrorContainer : (btnArea.containsMouse ? Theme.primary : Theme.colorOnSurfaceVariant)
                 font.family: Theme.iconFamily
                 font.pixelSize: 20
                 renderType: Text.NativeRendering
+
+                Behavior on color {
+                    ColorAnimation { duration: 150 }
+                }
             }
 
             MouseArea {
@@ -138,7 +144,7 @@ Item {
         Column {
             anchors.verticalCenter: parent.verticalCenter
             width: parent.width - muteBtn.width - rowContainer.spacing
-            spacing: 5
+            spacing: 6
 
             // Top Row: Title, Subtitle, and Percentage
             Row {
@@ -148,7 +154,7 @@ Item {
                     id: titleText
                     width: parent.width - percentText.implicitWidth - 8
                     text: root.title !== "" ? root.title : (root.node ? (root.node.description || root.node.name) : "Audio Stream")
-                    color: Theme.foreground
+                    color: Theme.colorOnSurface
                     font.family: Theme.fontFamily
                     font.pixelSize: Theme.fontSize
                     font.bold: true
@@ -159,7 +165,7 @@ Item {
                 Text {
                     id: percentText
                     text: root.isMuted ? "Muted" : Math.round(root.currentVolume * 100) + "%"
-                    color: root.isMuted ? Theme.secondary : Theme.foreground
+                    color: root.isMuted ? Theme.alertRed : Theme.colorOnSurfaceVariant
                     font.family: Theme.fontFamily
                     font.pixelSize: 13
                     font.bold: true
@@ -172,32 +178,61 @@ Item {
                 }
             }
 
-            // Slider Track Area
+            // Material Design 3 Slider Track Area
             Item {
                 id: sliderArea
                 width: parent.width
-                height: 22
+                height: 32
 
-                // Inactive Background Track (Theme.secondary with transparency)
-                Rectangle {
-                    id: baseTrack
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: parent.width
-                    height: 5
-                    radius: 2.5
-                    color: Theme.secondary
-                    opacity: 0.35
+                readonly property real trackHeight: 16
+                readonly property real thumbWidth: 4
+                readonly property real thumbHeight: 30
+                readonly property real gapSize: 6
+
+                readonly property real valRatio: Math.max(0.0, Math.min(1.0, root.currentVolume / root.maxVolume))
+                readonly property real thumbCenterX: Math.max(thumbWidth / 2, Math.min(width - thumbWidth / 2, valRatio * width))
+
+                readonly property real activeTrackWidth: Math.max(0, thumbCenterX - (thumbWidth / 2) - gapSize)
+                readonly property real inactiveTrackStart: Math.min(width, thumbCenterX + (thumbWidth / 2) + gapSize)
+                readonly property real inactiveTrackWidth: Math.max(0, width - inactiveTrackStart)
+
+                function getDotColor(dotX) {
+                    if (dotX <= sliderArea.activeTrackWidth) {
+                        return root.isMuted ? Theme.colorOnSurfaceVariant : Theme.colorOnPrimary;
+                    } else {
+                        return root.isMuted ? Theme.colorOnSurfaceVariant : Theme.colorOnSecondaryContainer;
+                    }
                 }
 
-                // Active Filled Track (Theme.foreground)
+                // Inactive Background Track (Material 3 Secondary Container)
                 Rectangle {
-                    id: fillTrack
+                    id: inactiveTrack
+                    x: sliderArea.inactiveTrackStart
                     anchors.verticalCenter: parent.verticalCenter
-                    anchors.left: baseTrack.left
-                    height: 5
-                    radius: 2.5
-                    color: Theme.foreground
-                    width: Math.max(0, Math.min(baseTrack.width, (root.currentVolume / root.maxVolume) * baseTrack.width))
+                    width: sliderArea.inactiveTrackWidth
+                    height: sliderArea.trackHeight
+                    radius: height / 2
+                    color: Theme.secondaryContainer
+
+                    Behavior on x {
+                        enabled: !sliderMouse.drag.active && !sliderMouse.pressed
+                        NumberAnimation { duration: 100; easing.type: Easing.OutQuad }
+                    }
+                    Behavior on width {
+                        enabled: !sliderMouse.drag.active && !sliderMouse.pressed
+                        NumberAnimation { duration: 100; easing.type: Easing.OutQuad }
+                    }
+                }
+
+                // Active Filled Track (Material 3 Primary Pill)
+                Rectangle {
+                    id: activeTrack
+                    x: 0
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: sliderArea.activeTrackWidth
+                    height: sliderArea.trackHeight
+                    radius: height / 2
+                    color: root.isMuted ? Theme.outlineVariant : Theme.primary
 
                     Behavior on width {
                         enabled: !sliderMouse.drag.active && !sliderMouse.pressed
@@ -205,23 +240,88 @@ Item {
                     }
                 }
 
-                // Figma Stylized Thumb: A vertical rounded pill crossing the horizontal track
+                // =====================================================
+                // Material Design 3 Stop Indicator Dots:
+                // 1. Beginning (0%)
+                // 2. 100% point (normal full volume)
+                // 3. 150% point (amplified boost maximum / end)
+                // =====================================================
+
+                // Dot 1: Beginning (0%)
+                Rectangle {
+                    id: dotStart
+                    readonly property real centerX: sliderArea.trackHeight / 2
+                    x: centerX - 2
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 4
+                    height: 4
+                    radius: 2
+                    color: sliderArea.getDotColor(centerX)
+                    z: 2
+                    opacity: 0.9
+
+                    Behavior on color {
+                        ColorAnimation { duration: 120 }
+                    }
+                }
+
+                // Dot 2: 100% volume point (normal maximum)
+                Rectangle {
+                    id: dot100
+                    readonly property real centerX: Math.round((1.0 / root.maxVolume) * sliderArea.width)
+                    x: centerX - 2
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 4
+                    height: 4
+                    radius: 2
+                    color: sliderArea.getDotColor(centerX)
+                    z: 2
+                    visible: root.maxVolume > 1.05
+                    opacity: 0.9
+
+                    Behavior on color {
+                        ColorAnimation { duration: 120 }
+                    }
+                }
+
+                // Dot 3: End point (150% boost maximum)
+                Rectangle {
+                    id: dotEnd
+                    readonly property real centerX: sliderArea.width - (sliderArea.trackHeight / 2)
+                    x: centerX - 2
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 4
+                    height: 4
+                    radius: 2
+                    color: sliderArea.getDotColor(centerX)
+                    z: 2
+                    opacity: 0.9
+
+                    Behavior on color {
+                        ColorAnimation { duration: 120 }
+                    }
+                }
+
+                // Material 3 Vertical Bar Handle (Thumb)
                 Rectangle {
                     id: thumb
-                    width: 4
-                    height: 18
-                    radius: 2
-                    color: Theme.foreground
                     anchors.verticalCenter: parent.verticalCenter
-                    x: Math.max(0, Math.min(sliderArea.width - width, (root.currentVolume / root.maxVolume) * sliderArea.width - (width / 2)))
+                    x: sliderArea.thumbCenterX - (width / 2)
+                    width: sliderMouse.pressed ? 5 : sliderArea.thumbWidth
+                    height: sliderMouse.pressed ? 34 : sliderArea.thumbHeight
+                    radius: width / 2
+                    color: root.isMuted ? Theme.outline : Theme.primary
+                    z: 5
 
-                    scale: sliderMouse.containsMouse || sliderMouse.pressed ? 1.25 : 1.0
-                    Behavior on scale {
-                        NumberAnimation { duration: 120; easing.type: Easing.OutBack }
-                    }
                     Behavior on x {
                         enabled: !sliderMouse.drag.active && !sliderMouse.pressed
                         NumberAnimation { duration: 100; easing.type: Easing.OutQuad }
+                    }
+                    Behavior on width {
+                        NumberAnimation { duration: 100 }
+                    }
+                    Behavior on height {
+                        NumberAnimation { duration: 100 }
                     }
                 }
 
@@ -253,48 +353,6 @@ Item {
                             root.setVolume(root.currentVolume - step);
                         }
                     }
-                }
-            }
-
-            // Figma Labels: 0, 100, 150 positioned under the track
-            Item {
-                width: parent.width
-                height: 14
-
-                // "0" at start
-                Text {
-                    anchors.left: parent.left
-                    anchors.top: parent.top
-                    text: "0"
-                    color: Theme.secondary
-                    opacity: 0.65
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 11
-                    renderType: Text.NativeRendering
-                }
-
-                // "100" at (1.0 / maxVolume) position (~66.7%)
-                Text {
-                    x: Math.round((1.0 / root.maxVolume) * parent.width - (implicitWidth / 2))
-                    anchors.top: parent.top
-                    text: "100"
-                    color: Theme.secondary
-                    opacity: 0.65
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 11
-                    renderType: Text.NativeRendering
-                }
-
-                // "150" at end
-                Text {
-                    anchors.right: parent.right
-                    anchors.top: parent.top
-                    text: "150"
-                    color: Theme.secondary
-                    opacity: 0.65
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 11
-                    renderType: Text.NativeRendering
                 }
             }
         }

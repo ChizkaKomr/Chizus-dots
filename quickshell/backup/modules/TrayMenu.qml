@@ -22,18 +22,84 @@ PopupWindow {
     grabFocus: false
     color: "transparent"
 
+    // State matching ClipboardManager
+    property bool isOpen: false
+    property real animProgress: 0.0
+    property double lastCloseTime: 0
+
+    onVisibleChanged: {
+        if (visible && !isOpen) {
+            open();
+        } else if (!visible && isOpen) {
+            close();
+        }
+    }
+
+    function open() {
+        if (isOpen && visible) return;
+        isOpen = true;
+        visible = true;
+        closeAnim.stop();
+        openAnim.restart();
+        menuCol.updateWidth();
+        menuContainer.forceActiveFocus();
+    }
+
+    function close() {
+        if (!isOpen && !visible) return;
+        isOpen = false;
+        lastCloseTime = Date.now();
+        openAnim.stop();
+        closeAnim.restart();
+    }
+
+    function toggle() {
+        if (isOpen) {
+            close();
+        } else {
+            if (Date.now() - lastCloseTime < 200) return;
+            open();
+        }
+    }
+
+    NumberAnimation {
+        id: openAnim
+        target: root
+        property: "animProgress"
+        from: root.animProgress
+        to: 1.0
+        duration: 220
+        easing.type: Easing.OutCubic
+    }
+
+    NumberAnimation {
+        id: closeAnim
+        target: root
+        property: "animProgress"
+        from: root.animProgress
+        to: 0.0
+        duration: 180
+        easing.type: Easing.InCubic
+        onFinished: {
+            if (!root.isOpen) {
+                root.visible = false;
+            }
+        }
+    }
+
     implicitWidth: menuContainer.implicitWidth
     implicitHeight: menuContainer.implicitHeight
 
     HyprlandFocusGrab {
         windows: [ root ]
-        active: root.visible
-        onCleared: root.visible = false
+        active: root.isOpen
+        onCleared: root.close()
     }
 
     QsMenuOpener {
         id: menuOpener
         menu: root.menuHandle
+        onChildrenChanged: menuCol.updateWidth()
     }
 
     Rectangle {
@@ -43,6 +109,16 @@ PopupWindow {
         border.width: 1
         radius: 16
 
+        scale: 0.95 + 0.05 * root.animProgress
+        opacity: root.animProgress
+        transformOrigin: Item.Top
+
+        focus: true
+        Keys.onEscapePressed: event => {
+            root.close();
+            event.accepted = true;
+        }
+
         implicitWidth: menuCol.menuWidth + 10
         implicitHeight: menuCol.implicitHeight + 10
 
@@ -50,11 +126,25 @@ PopupWindow {
             id: menuCol
             anchors.centerIn: parent
             spacing: 2
-            property real menuWidth: Math.max(170, implicitWidth)
+            property real menuWidth: 170
+
+            function updateWidth() {
+                let maxW = 170;
+                for (let i = 0; i < itemRepeater.count; i++) {
+                    const item = itemRepeater.itemAt(i);
+                    if (item && item.implicitWidth > maxW) {
+                        maxW = item.implicitWidth;
+                    }
+                }
+                menuWidth = maxW;
+            }
 
             Repeater {
                 id: itemRepeater
                 model: menuOpener.children
+                onItemAdded: menuCol.updateWidth()
+                onItemRemoved: menuCol.updateWidth()
+                onCountChanged: menuCol.updateWidth()
 
                 delegate: Item {
                     id: entryItem
@@ -71,6 +161,9 @@ PopupWindow {
                     height: isSeparator ? 9 : 30
                     implicitWidth: isSeparator ? 120 : (itemRow.implicitWidth + 24)
                     implicitHeight: height
+
+                    onImplicitWidthChanged: menuCol.updateWidth()
+                    Component.onCompleted: menuCol.updateWidth()
 
                     // Separator line
                     Rectangle {
@@ -150,7 +243,7 @@ PopupWindow {
                             onClicked: {
                                 if (entryItem.isItemEnabled && modelData) {
                                     modelData.triggered();
-                                    root.visible = false;
+                                    root.close();
                                 }
                             }
                         }

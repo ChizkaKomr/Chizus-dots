@@ -46,3 +46,7 @@ output_path = '~/.config/hypr/modules/colors.lua'
 [templates.obs]
 input_path = '/home/chizuko/.config/matugen/templates/obs_colors.obt'
 output_path = '~/.config/obs-studio/themes/matugen.obt'
+
+[templates.material_colors]
+input_path = '/home/chizuko/.config/matugen/templates/MD3_colors.json'
+output_path = '~/.config/quickshell/just_colors.json'
