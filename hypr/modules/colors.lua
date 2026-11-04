@@ -1,6 +1,6 @@
 -- ~/.config/matugen/templates/hyprcolors.lua
 return {
-    primary = "0xfffcb974",
-    secondary = "0xffbfcc9b",
-    background = "0xff19120c"
+    primary = "0xffadc6ff",
+    secondary = "0xffdebcdf",
+    background = "0xff111318"
 }

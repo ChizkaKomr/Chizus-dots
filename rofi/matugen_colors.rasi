@@ -1,7 +1,7 @@
 
 * {
-    border:         #fcb974;
-    selected:       #fcb974;
-    background:     #19120c;
-    foreground:     #fcb974;
+    border:         #adc6ff;
+    selected:       #adc6ff;
+    background:     #111318;
+    foreground:     #adc6ff;
 }
