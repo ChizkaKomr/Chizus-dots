@@ -4,9 +4,9 @@
 
 my personal rice im using, nothingg special but feel free to steal whatever u wantt
 ## Preview
-### HyprLock
+### Lockscreen
 
-<img width="1920" height="1080" alt="hyprlock" src="https://github.com/user-attachments/assets/74eb29a9-09d3-46fc-82c0-6dd5e5e18db0" />
+<img width="1920" height="1080" alt="lockscreen" src="https://github.com/user-attachments/assets/bb3dec81-8609-4753-95d8-b58ea164e587" />
 
 ### Volume control center
 
@@ -21,13 +21,13 @@ my personal rice im using, nothingg special but feel free to steal whatever u wa
 
 ### Clipboard manager
 
-<img width="747" height="606" alt="image" src="https://github.com/user-attachments/assets/28e4f650-be1b-48d3-87d2-00af5dadca77" />
+<img width="738" height="639" alt="image" src="https://github.com/user-attachments/assets/f65da9b6-d30e-40b8-8b2e-87f0cc0e77ea" />
+
 
 ### Power Menu
 
+<img width="354" height="352" alt="image" src="https://github.com/user-attachments/assets/f1eaec81-9d3a-4d87-b938-e318a193838c" />
 
-
-https://github.com/user-attachments/assets/9f296925-38bb-47bc-b0fd-3264e03b1da8
 
 
 
@@ -40,9 +40,11 @@ https://github.com/user-attachments/assets/9f296925-38bb-47bc-b0fd-3264e03b1da8
 | :--- | :--- |
 | **Window Manager** | [Hyprland](https://github.com/hyprwm/Hyprland) |
 | **Terminal** | [Kitty](https://github.com/kovidgoyal/kitty) |
-| **Lock screen** | [Hyprlock](https://github.com/hyprwm/hyprlock) |
+| **Lock screen** | [~~Hyprlock~~](https://github.com/hyprwm/hyprlock) [quickshell](https://quickshell.org/) |
 | **Wallpaper Daemon** | [awww](https://codeberg.org/LGFae/awww) |
-| **Bar** | [Waybar](https://github.com/Alexays/Waybar) |
-| **App Launcher** | [Rofi](https://github.com/davatorium/rofi) |
-| **Power Menu** | [wlogout](https://github.com/ArtsyMacaw/wlogout) |
+| **Bar** | [~~Waybar~~](https://github.com/Alexays/Waybar) [quickshell](https://quickshell.org/) |
+| **App Launcher** | [~~Rofi~~](https://github.com/davatorium/rofi) [quickshell](https://quickshell.org/) |
+| **Power Menu** | [~~wlogout~~](https://github.com/ArtsyMacaw/wlogout) [quickshell](https://quickshell.org/) |
 | **Dynamic Colors** | [~~wallust~~](https://crates.io/crates/wallust) [matugen](https://github.com/InioX/matugen) |
+
+## ⚠️Everything quickshell related (aka 90% of the rice) IS VIBE CODED
