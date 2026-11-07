@@ -30,14 +30,11 @@ ShellRoot {
                 Item {
                     anchors.fill: parent
 
-                    // Left module: Power / Moon
-                    Row {
+                    // Left module: Power / Moon — corner tab flush with the screen edge
+                    PowerModule {
                         anchors.left: parent.left
-                        anchors.leftMargin: 12
-                        anchors.verticalCenter: parent.verticalCenter
-                        spacing: 6
-
-                        PowerModule {}
+                        anchors.top: parent.top
+                        barWindow: barWindow
                     }
 
                     // Center module: Workspaces
@@ -81,7 +78,9 @@ ShellRoot {
                                 barWindow: barWindow
                             }
                             LanguageModule {}
-                            ClockModule {}
+                            ClockModule {
+                                barWindow: barWindow
+                            }
                         }
                     }
                 }
@@ -92,6 +91,12 @@ ShellRoot {
             }
         }
     }
+
+    LockScreen {}
+
+    AppLauncher {}
+
+    WallpaperPicker {}
 
     ClipboardManager {
         id: clipboardManager

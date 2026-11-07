@@ -1,7 +1,7 @@
-@define-color background #111318;
-@define-color selected   #adc6ff;
+@define-color background #0e1513;
+@define-color selected   #83d5c5;
 @define-color urgent     #ffb4ab;
-@define-color hover      #adc6ff;
+@define-color hover      #83d5c5;
 
-@define-color text      #adc6ff;
+@define-color text      #83d5c5;
 

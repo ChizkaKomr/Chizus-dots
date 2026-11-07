@@ -6,15 +6,11 @@ import ".."
 Rectangle {
     id: root
 
-    color: Theme.background
-    radius: Theme.pillRadius
+    color: "transparent"
+    radius: 0
     implicitHeight: Theme.pillHeight
-    implicitWidth: audioRow.implicitWidth + 24 // padding: 0 12px
+    implicitWidth: audioRow.implicitWidth + 8
 
-    scale: mouseArea.pressed ? 0.92 : (mouseArea.containsMouse ? 1.05 : 1.0)
-    Behavior on scale {
-        NumberAnimation { duration: 150; easing.type: Easing.OutBack }
-    }
 
     property var barWindow: null
 

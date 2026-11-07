@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Effects
 import Quickshell
 import Quickshell.Io
 import Quickshell.Hyprland
@@ -386,17 +387,44 @@ PanelWindow {
             return true;
         });
 
-        // Sort: pinned first, then preserve history order
+        // Sort: newest -> oldest (cliphist ids only ever grow), pinned always at the very bottom.
+        // Explicit numeric ids as the key: the old comparator returned 0 for ties and
+        // relied on a stable sort, which the QML engine doesn't guarantee (-> scattered order).
+        const pinSet = {};
+        for (let i = 0; i < root.pinnedIds.length; i++) pinSet[root.pinnedIds[i]] = true;
         filtered.sort((a, b) => {
-            const aPin = root.pinnedIds.indexOf(a.id) !== -1;
-            const bPin = root.pinnedIds.indexOf(b.id) !== -1;
-            if (aPin && !bPin) return -1;
-            if (!aPin && bPin) return 1;
-            return 0;
+            const aPin = pinSet[a.id] ? 1 : 0;
+            const bPin = pinSet[b.id] ? 1 : 0;
+            if (aPin !== bPin) return aPin - bPin;
+            return Number(b.id) - Number(a.id);
         });
 
         root.filteredItems = filtered;
+        root.syncModel(filtered);
         root.selectedIndex = Math.min(root.selectedIndex, Math.max(0, filtered.length - 1));
+    }
+
+    // Backing model for the list. Kept in sync with filteredItems by *diffing*
+    // (remove / move / insert) so ListView can animate pin, unpin, add and delete.
+    ListModel { id: clipModel }
+
+    function syncModel(items) {
+        const want = {};
+        for (let i = 0; i < items.length; i++) want[items[i].id] = true;
+
+        for (let i = clipModel.count - 1; i >= 0; i--) {
+            if (!want[clipModel.get(i).cid]) clipModel.remove(i);
+        }
+        for (let i = 0; i < items.length; i++) {
+            const it = items[i];
+            if (i < clipModel.count && clipModel.get(i).cid === it.id) continue;
+            let found = -1;
+            for (let j = i + 1; j < clipModel.count; j++) {
+                if (clipModel.get(j).cid === it.id) { found = j; break; }
+            }
+            if (found !== -1) clipModel.move(found, i, 1);
+            else clipModel.insert(i, { cid: it.id, ctext: it.text });
+        }
     }
 
     function selectPrevious() {
@@ -449,13 +477,6 @@ PanelWindow {
         }
     }
 
-    function getRelativeTime(index) {
-        if (index === 0) return "Just now";
-        if (index < 3) return "6m ago";
-        if (index < 6) return "3h ago";
-        if (index < 12) return "Yesterday";
-        return Math.floor(index / 6) + "d ago";
-    }
 
     // Fullscreen backdrop to dismiss on outside click
     MouseArea {
@@ -469,17 +490,17 @@ PanelWindow {
     }
 
     // =============================================================
-    // Main Clipboard Dialog Window
+    // Main Clipboard Dialog (Material 3)
     // =============================================================
     Rectangle {
         id: dialog
         anchors.horizontalCenter: parent.horizontalCenter
         width: 720
-        height: 580
-        radius: 20
-        color: root.colBg
-        border.color: root.colBorder
-        border.width: 1.5
+        height: 600
+        radius: 28
+        color: Theme.surfaceContainer
+        border.color: Theme.outlineVariant
+        border.width: 1
         clip: true
 
         readonly property real targetY: Math.round((root.height - height) / 2)
@@ -492,27 +513,182 @@ PanelWindow {
             onPressed: mouse => { mouse.accepted = true; }
         }
 
-        // Keyboard handler for list navigation
-        Keys.onUpPressed: event => {
-            event.accepted = true;
-            root.selectPrevious();
+        // ---- reusable M3 pieces -------------------------------------
+        component Glyph: Text {
+            font.family: "Material Symbols Rounded"
+            font.pixelSize: 22
+            font.variableAxes: { "FILL": 0 }
+            renderType: Text.NativeRendering
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
         }
-        Keys.onDownPressed: event => {
-            event.accepted = true;
-            root.selectNext();
+
+        // M3 filter chip: outlined when off; on select the container fills (secondary-container),
+        // a check mark scales in over the type icon, and a ripple spreads from the press point.
+        component FilterChip: Rectangle {
+            id: chip
+            property string label
+            property string glyph
+            property bool active: false
+            signal clicked()
+
+            height: 34
+            width: chipRow.implicitWidth + 28
+            radius: 10
+            color: active ? Theme.secondaryContainer : "transparent"
+            border.width: 1
+            border.color: active ? "transparent" : Theme.outline
+            Behavior on color { ColorAnimation { duration: 220; easing.type: Easing.OutCubic } }
+            Behavior on border.color { ColorAnimation { duration: 220 } }
+
+            // press feedback: slight squash like an M3 pressed state
+            scale: chipMouse.pressed ? 0.96 : 1.0
+            Behavior on scale { NumberAnimation { duration: 120; easing.type: Easing.OutCubic } }
+
+            // ---- ripple, clipped to the chip's rounded shape ----
+            Item {
+                id: rippleHost
+                anchors.fill: parent
+                visible: false
+                layer.enabled: true
+
+                Rectangle {
+                    id: ripple
+                    property real cx: 0
+                    property real cy: 0
+                    property real d: 0
+                    x: cx - d / 2; y: cy - d / 2
+                    width: d; height: d; radius: d / 2
+                    color: chip.active ? Theme.colorOnSecondaryContainer : Theme.colorOnSurface
+                    opacity: 0
+                }
+            }
+            Rectangle {
+                id: rippleMask
+                anchors.fill: parent
+                radius: chip.radius
+                visible: false
+                layer.enabled: true
+            }
+            MultiEffect {
+                anchors.fill: parent
+                source: rippleHost
+                maskEnabled: true
+                maskSource: rippleMask
+            }
+
+            ParallelAnimation {
+                id: rippleAnim
+                NumberAnimation { target: ripple; property: "d"; from: 0; to: chip.width * 2.2; duration: 380; easing.type: Easing.OutCubic }
+                SequentialAnimation {
+                    NumberAnimation { target: ripple; property: "opacity"; to: 0.16; duration: 90 }
+                    NumberAnimation { target: ripple; property: "opacity"; to: 0; duration: 330; easing.type: Easing.OutCubic }
+                }
+            }
+
+            // hover state layer
+            Rectangle {
+                anchors.fill: parent
+                radius: parent.radius
+                color: chip.active ? Theme.colorOnSecondaryContainer : Theme.colorOnSurface
+                opacity: chipMouse.containsMouse ? 0.08 : 0
+                Behavior on opacity { NumberAnimation { duration: 120 } }
+            }
+
+            Row {
+                id: chipRow
+                anchors.centerIn: parent
+                spacing: 6
+
+                // icon slot: type icon scales out, check scales in
+                Item {
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 18; height: 18
+                    Glyph {
+                        anchors.centerIn: parent
+                        text: chip.glyph
+                        font.pixelSize: 18
+                        color: Theme.colorOnSurfaceVariant
+                        opacity: chip.active ? 0 : 1
+                        scale: chip.active ? 0.3 : 1
+                        Behavior on opacity { NumberAnimation { duration: 180 } }
+                        Behavior on scale { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
+                    }
+                    Glyph {
+                        anchors.centerIn: parent
+                        text: "\ue5ca"
+                        font.pixelSize: 18
+                        color: Theme.colorOnSecondaryContainer
+                        opacity: chip.active ? 1 : 0
+                        scale: chip.active ? 1 : 0.3
+                        Behavior on opacity { NumberAnimation { duration: 180 } }
+                        Behavior on scale { NumberAnimation { duration: 260; easing.type: Easing.OutBack; easing.overshoot: 1.6 } }
+                    }
+                }
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: chip.label
+                    color: chip.active ? Theme.colorOnSecondaryContainer : Theme.colorOnSurfaceVariant
+                    font.family: Theme.fontFamily
+                    font.pixelSize: 13
+                    font.bold: true
+                    renderType: Text.NativeRendering
+                    Behavior on color { ColorAnimation { duration: 220 } }
+                }
+            }
+            MouseArea {
+                id: chipMouse
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onPressed: mouse => {
+                    ripple.cx = mouse.x;
+                    ripple.cy = mouse.y;
+                    rippleAnim.restart();
+                }
+                onClicked: chip.clicked()
+            }
         }
-        Keys.onReturnPressed: event => {
-            event.accepted = true;
-            root.copySelected();
+
+        // M3 icon button (40px, circular, state layer)
+        component IconBtn: Rectangle {
+            id: ib
+            property string glyph
+            property color fg: Theme.colorOnSurfaceVariant
+            property color activeFill: "transparent"
+            property bool filled: false
+            signal clicked()
+
+            width: 40; height: 40; radius: 20
+            color: filled ? activeFill : "transparent"
+            Behavior on color { ColorAnimation { duration: 150 } }
+            Rectangle {
+                anchors.fill: parent
+                radius: parent.radius
+                color: ib.filled ? Theme.colorOnPrimary : ib.fg
+                opacity: ibMouse.pressed ? 0.14 : (ibMouse.containsMouse ? 0.10 : 0)
+            }
+            Glyph {
+                anchors.centerIn: parent
+                text: ib.glyph
+                color: ib.filled ? Theme.colorOnPrimary : ib.fg
+                font.variableAxes: { "FILL": ib.filled ? 1 : 0 }
+            }
+            MouseArea {
+                id: ibMouse
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: ib.clicked()
+            }
         }
-        Keys.onEnterPressed: event => {
-            event.accepted = true;
-            root.copySelected();
-        }
-        Keys.onEscapePressed: event => {
-            event.accepted = true;
-            root.close();
-        }
+
+        // ---- keyboard handlers --------------------------------------
+        Keys.onUpPressed: event => { event.accepted = true; root.selectPrevious(); }
+        Keys.onDownPressed: event => { event.accepted = true; root.selectNext(); }
+        Keys.onReturnPressed: event => { event.accepted = true; root.copySelected(); }
+        Keys.onEnterPressed: event => { event.accepted = true; root.copySelected(); }
+        Keys.onEscapePressed: event => { event.accepted = true; root.close(); }
         Keys.onDeletePressed: event => {
             if (root.filteredItems.length > 0 && root.selectedIndex >= 0 && root.selectedIndex < root.filteredItems.length) {
                 event.accepted = true;
@@ -522,58 +698,73 @@ PanelWindow {
 
         Column {
             anchors.fill: parent
-            anchors.margins: 20
-            spacing: 14
+            anchors.margins: 24
+            spacing: 16
 
             // ---------------------------------------------------------
-            // 1. Header: Title & Clear All
+            // 1. Header: title + item count, tonal "Clear all" button
             // ---------------------------------------------------------
-            Row {
+            Item {
                 width: parent.width
+                height: 48
 
-                Text {
-                    width: parent.width - clearAllBtn.width
-                    text: "Clipboard History"
-                    color: root.colTextPrimary
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 19
-                    font.bold: true
-                    renderType: Text.NativeRendering
+                Column {
+                    anchors.left: parent.left
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 2
+                    Text {
+                        text: "Clipboard"
+                        color: Theme.colorOnSurface
+                        font.family: Theme.fontFamily
+                        font.pixelSize: 24
+                        font.bold: true
+                        renderType: Text.NativeRendering
+                    }
+                    Text {
+                        text: root.filteredItems.length + (root.filteredItems.length === 1 ? " item" : " items")
+                        color: Theme.colorOnSurfaceVariant
+                        font.family: Theme.fontFamily
+                        font.pixelSize: 12
+                        renderType: Text.NativeRendering
+                    }
                 }
 
-                // Clear All Button
+                // Tonal button
                 Rectangle {
                     id: clearAllBtn
-                    width: clearAllRow.implicitWidth + 14
-                    height: 28
-                    radius: 8
-                    color: clearMouse.containsMouse ? Qt.rgba(root.colDanger.r, root.colDanger.g, root.colDanger.b, 0.2) : "transparent"
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+                    height: 40
+                    width: clearRow.implicitWidth + 40
+                    radius: 20
+                    color: Theme.secondaryContainer
 
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: parent.radius
+                        color: Theme.colorOnSecondaryContainer
+                        opacity: clearMouse.pressed ? 0.12 : (clearMouse.containsMouse ? 0.08 : 0)
+                    }
                     Row {
-                        id: clearAllRow
+                        id: clearRow
                         anchors.centerIn: parent
-                        spacing: 6
-
-                        Text {
+                        spacing: 8
+                        Glyph {
                             anchors.verticalCenter: parent.verticalCenter
-                            text: ""
-                            color: clearMouse.containsMouse ? root.colDanger : root.colAccent
-                            font.family: Theme.iconFamily
-                            font.pixelSize: 14
-                            renderType: Text.NativeRendering
+                            text: ""
+                            font.pixelSize: 20
+                            color: Theme.colorOnSecondaryContainer
                         }
-
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
-                            text: "Clear All"
-                            color: clearMouse.containsMouse ? root.colDanger : root.colAccent
+                            text: "Clear all"
+                            color: Theme.colorOnSecondaryContainer
                             font.family: Theme.fontFamily
-                            font.pixelSize: 13
+                            font.pixelSize: 14
                             font.bold: true
                             renderType: Text.NativeRendering
                         }
                     }
-
                     MouseArea {
                         id: clearMouse
                         anchors.fill: parent
@@ -585,347 +776,173 @@ PanelWindow {
             }
 
             // ---------------------------------------------------------
-            // 2. Search Bar
+            // 2. Search bar (M3 filled pill)
             // ---------------------------------------------------------
             Rectangle {
                 id: searchBar
                 width: parent.width
-                height: 44
-                radius: 12
-                color: root.colInputBg
-                border.color: searchField.activeFocus ? root.colAccent : root.colBorder
-                border.width: 1
+                height: 52
+                radius: 26
+                color: Theme.surfaceContainerHighest
+                border.width: 2
+                border.color: searchField.activeFocus ? Theme.primary : "transparent"
+                Behavior on border.color { ColorAnimation { duration: 150 } }
 
-                Behavior on border.color {
-                    ColorAnimation { duration: 150 }
+                Glyph {
+                    id: searchIcon
+                    anchors.left: parent.left
+                    anchors.leftMargin: 16
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: ""
+                    color: Theme.colorOnSurfaceVariant
                 }
 
-                Row {
-                    anchors.fill: parent
-                    anchors.leftMargin: 14
-                    anchors.rightMargin: 12
-                    spacing: 10
+                TextInput {
+                    id: searchField
+                    anchors.left: searchIcon.right
+                    anchors.leftMargin: 12
+                    anchors.right: clearSearch.left
+                    anchors.rightMargin: 8
+                    anchors.verticalCenter: parent.verticalCenter
+                    color: Theme.colorOnSurface
+                    font.family: Theme.fontFamily
+                    font.pixelSize: 16
+                    selectByMouse: true
+                    clip: true
+                    renderType: Text.NativeRendering
 
                     Text {
-                        anchors.verticalCenter: parent.verticalCenter
-                        text: ""
-                        color: root.colTextMuted
-                        font.family: Theme.iconFamily
-                        font.pixelSize: 15
-                        renderType: Text.NativeRendering
-                    }
-
-                    TextInput {
-                        id: searchField
-                        anchors.verticalCenter: parent.verticalCenter
-                        width: parent.width - 60
-                        color: root.colTextPrimary
+                        text: "Search clipboard"
+                        color: Theme.colorOnSurfaceVariant
                         font.family: Theme.fontFamily
-                        font.pixelSize: 14
-                        selectByMouse: true
-                        renderType: Text.NativeRendering
-
-                        Text {
-                            text: "Search history..."
-                            color: root.colTextDim
-                            font.family: Theme.fontFamily
-                            font.pixelSize: 14
-                            visible: !searchField.text
-                            anchors.verticalCenter: parent.verticalCenter
-                            renderType: Text.NativeRendering
-                        }
-
-                        onTextChanged: {
-                            root.selectedIndex = 0;
-                            itemsList.contentY = 0;
-                            root.applyFilter();
-                        }
-
-                        Keys.onUpPressed: event => {
-                            event.accepted = true;
-                            root.selectPrevious();
-                        }
-                        Keys.onDownPressed: event => {
-                            event.accepted = true;
-                            root.selectNext();
-                        }
-                        Keys.onReturnPressed: event => {
-                            event.accepted = true;
-                            root.copySelected();
-                        }
-                        Keys.onEnterPressed: event => {
-                            event.accepted = true;
-                            root.copySelected();
-                        }
-                        Keys.onEscapePressed: event => {
-                            event.accepted = true;
-                            root.close();
-                        }
-                        Keys.onDeletePressed: event => {
-                            if (searchField.text.length === 0 && root.filteredItems.length > 0) {
-                                event.accepted = true;
-                                root.deleteItem(root.filteredItems[root.selectedIndex].id);
-                            }
-                        }
-                    }
-
-                    // Clear search button
-                    Text {
+                        font.pixelSize: 16
+                        visible: !searchField.text
                         anchors.verticalCenter: parent.verticalCenter
-                        visible: searchField.text.length > 0
-                        text: "✕"
-                        color: root.colTextMuted
-                        font.family: Theme.fontFamily
-                        font.pixelSize: 13
                         renderType: Text.NativeRendering
+                    }
 
-                        MouseArea {
-                            anchors.fill: parent
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: {
-                                searchField.text = "";
-                                searchField.forceActiveFocus();
-                            }
+                    onTextChanged: {
+                        root.selectedIndex = 0;
+                        itemsList.contentY = 0;
+                        root.applyFilter();
+                    }
+
+                    Keys.onUpPressed: event => { event.accepted = true; root.selectPrevious(); }
+                    Keys.onDownPressed: event => { event.accepted = true; root.selectNext(); }
+                    Keys.onReturnPressed: event => { event.accepted = true; root.copySelected(); }
+                    Keys.onEnterPressed: event => { event.accepted = true; root.copySelected(); }
+                    Keys.onEscapePressed: event => { event.accepted = true; root.close(); }
+                    Keys.onDeletePressed: event => {
+                        if (searchField.text.length === 0 && root.filteredItems.length > 0) {
+                            event.accepted = true;
+                            root.deleteItem(root.filteredItems[root.selectedIndex].id);
                         }
                     }
+                }
+
+                IconBtn {
+                    id: clearSearch
+                    anchors.right: parent.right
+                    anchors.rightMargin: 6
+                    anchors.verticalCenter: parent.verticalCenter
+                    glyph: ""
+                    visible: searchField.text.length > 0
+                    onClicked: { searchField.text = ""; searchField.forceActiveFocus(); }
                 }
             }
 
             // ---------------------------------------------------------
-            // 3. Category Filter Chips
+            // 3. Filter chips
             // ---------------------------------------------------------
             Row {
                 width: parent.width
                 spacing: 8
 
-                // Text Chip
-                Rectangle {
-                    readonly property bool isActive: root.activeFilter === "text"
-                    width: textRow.implicitWidth + 24
-                    height: 32
-                    radius: 12
-                    color: isActive ? Qt.rgba(root.colAccent.r, root.colAccent.g, root.colAccent.b, 0.2) : Qt.rgba(Theme.secondary.r, Theme.secondary.g, Theme.secondary.b, 0.08)
-                    border.color: isActive ? root.colAccent : root.colBorder
-                    border.width: isActive ? 1.5 : 1
-
-                    Row {
-                        id: textRow
-                        anchors.centerIn: parent
-                        spacing: 7
-
-                        Text {
-                            anchors.verticalCenter: parent.verticalCenter
-                            text: ""
-                            color: parent.parent.isActive ? root.colAccent : root.colTextMuted
-                            font.family: Theme.iconFamily
-                            font.pixelSize: 13
-                            renderType: Text.NativeRendering
-                        }
-                        Text {
-                            anchors.verticalCenter: parent.verticalCenter
-                            text: "Text"
-                            color: parent.parent.isActive ? root.colAccent : root.colTextMuted
-                            font.family: Theme.fontFamily
-                            font.pixelSize: 13
-                            font.bold: true
-                            renderType: Text.NativeRendering
-                        }
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            root.activeFilter = root.activeFilter === "text" ? "all" : "text";
-                            root.selectedIndex = 0;
-                            itemsList.contentY = 0;
-                            root.applyFilter();
-                        }
-                    }
+                FilterChip {
+                    label: "All"; glyph: ""
+                    active: root.activeFilter === "all"
+                    onClicked: { root.activeFilter = "all"; root.selectedIndex = 0; itemsList.contentY = 0; root.applyFilter(); }
                 }
-
-                // Images Chip
-                Rectangle {
-                    readonly property bool isActive: root.activeFilter === "images"
-                    width: imgRow.implicitWidth + 24
-                    height: 32
-                    radius: 12
-                    color: isActive ? Qt.rgba(root.colAccent.r, root.colAccent.g, root.colAccent.b, 0.2) : Qt.rgba(Theme.secondary.r, Theme.secondary.g, Theme.secondary.b, 0.08)
-                    border.color: isActive ? root.colAccent : root.colBorder
-                    border.width: isActive ? 1.5 : 1
-
-                    Row {
-                        id: imgRow
-                        anchors.centerIn: parent
-                        spacing: 7
-
-                        Text {
-                            anchors.verticalCenter: parent.verticalCenter
-                            text: ""
-                            color: parent.parent.isActive ? root.colAccent : root.colTextMuted
-                            font.family: Theme.iconFamily
-                            font.pixelSize: 13
-                            renderType: Text.NativeRendering
-                        }
-                        Text {
-                            anchors.verticalCenter: parent.verticalCenter
-                            text: "Images"
-                            color: parent.parent.isActive ? root.colAccent : root.colTextMuted
-                            font.family: Theme.fontFamily
-                            font.pixelSize: 13
-                            font.bold: true
-                            renderType: Text.NativeRendering
-                        }
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            root.activeFilter = root.activeFilter === "images" ? "all" : "images";
-                            root.selectedIndex = 0;
-                            itemsList.contentY = 0;
-                            root.applyFilter();
-                        }
-                    }
+                FilterChip {
+                    label: "Text"; glyph: ""
+                    active: root.activeFilter === "text"
+                    onClicked: { root.activeFilter = root.activeFilter === "text" ? "all" : "text"; root.selectedIndex = 0; itemsList.contentY = 0; root.applyFilter(); }
                 }
-
-                // Links Chip
-                Rectangle {
-                    readonly property bool isActive: root.activeFilter === "links"
-                    width: linkRow.implicitWidth + 24
-                    height: 32
-                    radius: 12
-                    color: isActive ? Qt.rgba(root.colAccent.r, root.colAccent.g, root.colAccent.b, 0.2) : Qt.rgba(Theme.secondary.r, Theme.secondary.g, Theme.secondary.b, 0.08)
-                    border.color: isActive ? root.colAccent : root.colBorder
-                    border.width: isActive ? 1.5 : 1
-
-                    Row {
-                        id: linkRow
-                        anchors.centerIn: parent
-                        spacing: 7
-
-                        Text {
-                            anchors.verticalCenter: parent.verticalCenter
-                            text: ""
-                            color: parent.parent.isActive ? root.colAccent : root.colTextMuted
-                            font.family: Theme.iconFamily
-                            font.pixelSize: 13
-                            renderType: Text.NativeRendering
-                        }
-                        Text {
-                            anchors.verticalCenter: parent.verticalCenter
-                            text: "Links"
-                            color: parent.parent.isActive ? root.colAccent : root.colTextMuted
-                            font.family: Theme.fontFamily
-                            font.pixelSize: 13
-                            font.bold: true
-                            renderType: Text.NativeRendering
-                        }
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            root.activeFilter = root.activeFilter === "links" ? "all" : "links";
-                            root.selectedIndex = 0;
-                            itemsList.contentY = 0;
-                            root.applyFilter();
-                        }
-                    }
+                FilterChip {
+                    label: "Images"; glyph: ""
+                    active: root.activeFilter === "images"
+                    onClicked: { root.activeFilter = root.activeFilter === "images" ? "all" : "images"; root.selectedIndex = 0; itemsList.contentY = 0; root.applyFilter(); }
                 }
-
-                // All Chip (replacing Clear Filters)
-                Rectangle {
-                    readonly property bool isActive: root.activeFilter === "all"
-                    width: allRow.implicitWidth + 24
-                    height: 32
-                    radius: 12
-                    color: isActive ? Qt.rgba(root.colAccent.r, root.colAccent.g, root.colAccent.b, 0.2) : Qt.rgba(Theme.secondary.r, Theme.secondary.g, Theme.secondary.b, 0.08)
-                    border.color: isActive ? root.colAccent : root.colBorder
-                    border.width: isActive ? 1.5 : 1
-
-                    Row {
-                        id: allRow
-                        anchors.centerIn: parent
-                        spacing: 7
-
-                        Text {
-                            anchors.verticalCenter: parent.verticalCenter
-                            text: ""
-                            color: parent.parent.isActive ? root.colAccent : root.colTextMuted
-                            font.family: Theme.iconFamily
-                            font.pixelSize: 13
-                            renderType: Text.NativeRendering
-                        }
-                        Text {
-                            anchors.verticalCenter: parent.verticalCenter
-                            text: "All"
-                            color: parent.parent.isActive ? root.colAccent : root.colTextMuted
-                            font.family: Theme.fontFamily
-                            font.pixelSize: 13
-                            font.bold: true
-                            renderType: Text.NativeRendering
-                        }
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            root.activeFilter = "all";
-                            root.selectedIndex = 0;
-                            itemsList.contentY = 0;
-                            root.applyFilter();
-                        }
-                    }
+                FilterChip {
+                    label: "Links"; glyph: ""
+                    active: root.activeFilter === "links"
+                    onClicked: { root.activeFilter = root.activeFilter === "links" ? "all" : "links"; root.selectedIndex = 0; itemsList.contentY = 0; root.applyFilter(); }
                 }
             }
 
             // ---------------------------------------------------------
-            // 4. Clipboard Items List
+            // 4. Items list
             // ---------------------------------------------------------
             Item {
                 width: parent.width
-                height: parent.height - 180
+                height: parent.height - 48 - 52 - 34 - 16 * 3
                 clip: true
 
-                // Empty Placeholder
+                // Empty state
                 Column {
                     anchors.centerIn: parent
-                    spacing: 8
+                    spacing: 10
                     visible: root.filteredItems.length === 0
 
-                    Text {
+                    Glyph {
                         anchors.horizontalCenter: parent.horizontalCenter
-                        text: "󰅍"
-                        color: root.colTextDim
-                        font.family: Theme.iconFamily
-                        font.pixelSize: 36
+                        text: ""
+                        font.pixelSize: 56
+                        color: Theme.outline
                     }
                     Text {
                         anchors.horizontalCenter: parent.horizontalCenter
-                        text: "No clipboard items found"
-                        color: root.colTextMuted
+                        text: searchField.text.length > 0 ? "No matches" : "Clipboard is empty"
+                        color: Theme.colorOnSurfaceVariant
                         font.family: Theme.fontFamily
-                        font.pixelSize: 14
+                        font.pixelSize: 16
+                        renderType: Text.NativeRendering
                     }
                 }
 
                 ListView {
                     id: itemsList
                     anchors.fill: parent
-                    spacing: 10
-                    model: root.filteredItems
+                    spacing: 8
+                    model: clipModel
                     boundsBehavior: Flickable.StopAtBounds
+
+                    // MD3 emphasized easing for list reordering
+                    displaced: Transition {
+                        NumberAnimation { properties: "y"; duration: 380; easing.type: Easing.BezierSpline; easing.bezierCurve: [0.2, 0.0, 0.0, 1.0, 1.0, 1.0] }
+                    }
+                    move: Transition {
+                        NumberAnimation { properties: "y"; duration: 380; easing.type: Easing.BezierSpline; easing.bezierCurve: [0.2, 0.0, 0.0, 1.0, 1.0, 1.0] }
+                    }
+                    add: Transition {
+                        ParallelAnimation {
+                            NumberAnimation { property: "opacity"; from: 0; to: 1; duration: 260; easing.type: Easing.OutCubic }
+                            NumberAnimation { property: "scale"; from: 0.92; to: 1; duration: 320; easing.type: Easing.OutCubic }
+                        }
+                    }
+                    remove: Transition {
+                        ParallelAnimation {
+                            NumberAnimation { property: "opacity"; to: 0; duration: 180; easing.type: Easing.InCubic }
+                            NumberAnimation { property: "scale"; to: 0.92; duration: 180; easing.type: Easing.InCubic }
+                        }
+                    }
 
                     NumberAnimation {
                         id: scrollAnim
                         target: itemsList
                         property: "contentY"
-                        duration: 140
-                        easing.type: Easing.OutQuad
+                        duration: 160
+                        easing.type: Easing.OutCubic
                     }
 
                     ScrollBar.vertical: ScrollBar {
@@ -933,107 +950,133 @@ PanelWindow {
                         policy: ScrollBar.AsNeeded
                     }
 
-                    delegate: Rectangle {
-                        id: itemCard
-                        required property var modelData
+                    delegate: Item {
+                        id: row
+                        required property string cid
+                        required property string ctext
                         required property int index
 
                         readonly property bool isSelected: root.selectedIndex === index
-                        readonly property bool isPinned: root.pinnedIds.indexOf(modelData.id) !== -1
-                        readonly property bool isImage: modelData.text.startsWith("[[ binary data")
-                        readonly property bool isLink: modelData.text.startsWith("http://") || modelData.text.startsWith("https://") || modelData.text.startsWith("www.")
-                        readonly property var imageMeta: isImage ? root.parseImageMeta(modelData.text) : null
+                        readonly property bool isPinned: root.pinnedIds.indexOf(cid) !== -1
+                        readonly property bool prevPinned: index > 0 && root.pinnedIds.indexOf(root.filteredItems[index - 1].id) !== -1
+                        readonly property bool showPinnedHeader: isPinned && !prevPinned
+                        readonly property bool isImage: ctext.startsWith("[[ binary data")
+                        readonly property bool isLink: ctext.startsWith("http://") || ctext.startsWith("https://") || ctext.startsWith("www.")
+                        readonly property var imageMeta: isImage ? root.parseImageMeta(ctext) : null
 
                         width: itemsList.width
-                        height: Math.max(76, contentCol.implicitHeight + 24)
-                        radius: 14
-                        color: isSelected ? root.colCardHover : (cardMouse.containsMouse ? Qt.rgba(Theme.secondary.r, Theme.secondary.g, Theme.secondary.b, 0.1) : root.colCardBg)
-                        border.color: isSelected ? root.colAccent : (cardMouse.containsMouse ? Qt.rgba(root.colAccent.r, root.colAccent.g, root.colAccent.b, 0.35) : "transparent")
-                        border.width: isSelected ? 1.5 : (cardMouse.containsMouse ? 1 : 0)
+                        height: (showPinnedHeader ? 32 : 0) + itemCard.height
 
-                        Behavior on border.color {
-                            ColorAnimation { duration: 120 }
-                        }
-                        Behavior on color {
-                            ColorAnimation { duration: 120 }
-                        }
-
-                        // Card background click & right-click delete
-                        MouseArea {
-                            id: cardMouse
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            acceptedButtons: Qt.LeftButton | Qt.RightButton
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: mouse => {
-                                if (mouse.button === Qt.RightButton) {
-                                    root.deleteItem(itemCard.modelData.id);
-                                } else {
-                                    root.selectedIndex = itemCard.index;
-                                    root.copyItem(itemCard.modelData.id);
-                                }
-                            }
-                        }
-
+                        // "Pinned" section label above the first pinned card
                         Row {
-                            anchors.fill: parent
-                            anchors.margins: 14
-                            spacing: 14
+                            visible: row.showPinnedHeader
+                            x: 8
+                            height: 32
+                            spacing: 6
+                            Glyph {
+                                anchors.verticalCenter: parent.verticalCenter
+                                text: ""
+                                font.pixelSize: 16
+                                color: Theme.primary
+                            }
+                            Text {
+                                anchors.verticalCenter: parent.verticalCenter
+                                text: "Pinned"
+                                color: Theme.primary
+                                font.family: Theme.fontFamily
+                                font.pixelSize: 12
+                                font.bold: true
+                                font.letterSpacing: 0.8
+                                renderType: Text.NativeRendering
+                            }
+                        }
 
-                            // Type Icon Container
+                        Rectangle {
+                            id: itemCard
+                            y: row.showPinnedHeader ? 32 : 0
+                            width: parent.width
+                            height: Math.max(72, contentCol.implicitHeight + 28)
+                            radius: 20
+                            color: row.isSelected ? Theme.secondaryContainer : Theme.surfaceContainerHigh
+                            Behavior on color { ColorAnimation { duration: 150 } }
+
+                            // hover / press state layer
                             Rectangle {
-                                width: 36
-                                height: 36
-                                radius: 10
-                                color: Qt.rgba(root.colAccent.r, root.colAccent.g, root.colAccent.b, 0.12)
-                                anchors.top: parent.top
+                                anchors.fill: parent
+                                radius: parent.radius
+                                color: row.isSelected ? Theme.colorOnSecondaryContainer : Theme.colorOnSurface
+                                opacity: cardMouse.pressed ? 0.12 : (cardMouse.containsMouse ? 0.08 : 0)
+                                Behavior on opacity { NumberAnimation { duration: 120 } }
+                            }
 
-                                Text {
-                                    anchors.centerIn: parent
-                                    text: itemCard.isImage ? "" : (itemCard.isLink ? "" : "")
-                                    color: root.colAccent
-                                    font.family: Theme.iconFamily
-                                    font.pixelSize: 17
-                                    renderType: Text.NativeRendering
+                            MouseArea {
+                                id: cardMouse
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                acceptedButtons: Qt.LeftButton | Qt.RightButton
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: mouse => {
+                                    if (mouse.button === Qt.RightButton) {
+                                        root.deleteItem(row.cid);
+                                    } else {
+                                        root.selectedIndex = row.index;
+                                        root.copyItem(row.cid);
+                                    }
                                 }
                             }
 
-                            // Content Details Column
+                            // leading type icon
+                            Rectangle {
+                                id: leading
+                                anchors.left: parent.left
+                                anchors.leftMargin: 16
+                                anchors.verticalCenter: parent.verticalCenter
+                                width: 40; height: 40; radius: 20
+                                color: row.isSelected ? Theme.primary : Theme.primaryContainer
+                                Behavior on color { ColorAnimation { duration: 150 } }
+                                Glyph {
+                                    anchors.centerIn: parent
+                                    text: row.isImage ? "" : (row.isLink ? "" : "")
+                                    color: row.isSelected ? Theme.colorOnPrimary : Theme.colorOnPrimaryContainer
+                                    font.pixelSize: 20
+                                }
+                            }
+
+                            // content
                             Column {
                                 id: contentCol
-                                width: parent.width - 36 - 36 - (parent.spacing * 2)
-                                spacing: 6
+                                anchors.left: leading.right
+                                anchors.leftMargin: 16
+                                anchors.right: actions.left
+                                anchors.rightMargin: 8
+                                anchors.verticalCenter: parent.verticalCenter
+                                spacing: 4
 
-                                // Preview Text for Text / Links
                                 Text {
-                                    visible: !itemCard.isImage
+                                    visible: !row.isImage
                                     width: parent.width
-                                    text: itemCard.modelData.text
+                                    text: row.ctext
                                     textFormat: Text.PlainText
-                                    color: itemCard.isSelected ? root.colTextPrimary : Qt.rgba(root.colTextPrimary.r, root.colTextPrimary.g, root.colTextPrimary.b, 0.9)
+                                    color: row.isSelected ? Theme.colorOnSecondaryContainer : Theme.colorOnSurface
                                     font.family: Theme.fontFamily
-                                    font.pixelSize: 14
-                                    lineHeight: 1.2
-                                    maximumLineCount: itemCard.isSelected ? 3 : 2
+                                    font.pixelSize: 15
+                                    lineHeight: 1.15
+                                    maximumLineCount: row.isSelected ? 3 : 2
                                     wrapMode: Text.Wrap
                                     elide: Text.ElideRight
                                     renderType: Text.NativeRendering
                                 }
 
-                                // Visual Thumbnail Preview Layout for Images
                                 Row {
-                                    visible: itemCard.isImage
+                                    visible: row.isImage
                                     width: parent.width
-                                    spacing: 12
+                                    spacing: 14
 
                                     Rectangle {
                                         id: thumbBox
-                                        width: 96
-                                        height: 60
-                                        radius: 8
-                                        color: root.colInputBg
-                                        border.color: itemCard.isSelected ? root.colAccent : root.colBorder
-                                        border.width: 1
+                                        width: 104; height: 64
+                                        radius: 12
+                                        color: Theme.surfaceContainerHighest
                                         clip: true
 
                                         Image {
@@ -1042,18 +1085,15 @@ PanelWindow {
                                             fillMode: Image.PreserveAspectCrop
                                             asynchronous: true
                                             cache: false
-                                            source: itemCard.isImage ? ("file:///tmp/cliphist_thumbs/" + itemCard.modelData.id + ".png?v=" + root.thumbsVersion) : ""
+                                            source: row.isImage ? ("file:///tmp/cliphist_thumbs/" + row.cid + ".png?v=" + root.thumbsVersion) : ""
                                             visible: status === Image.Ready
                                         }
-
-                                        Text {
+                                        Glyph {
                                             anchors.centerIn: parent
                                             visible: thumbImg.status !== Image.Ready
-                                            text: ""
-                                            color: root.colTextDim
-                                            font.family: Theme.iconFamily
-                                            font.pixelSize: 22
-                                            renderType: Text.NativeRendering
+                                            text: ""
+                                            color: Theme.outline
+                                            font.pixelSize: 28
                                         }
                                     }
 
@@ -1061,22 +1101,20 @@ PanelWindow {
                                         anchors.verticalCenter: parent.verticalCenter
                                         width: parent.width - thumbBox.width - parent.spacing
                                         spacing: 4
-
                                         Text {
                                             width: parent.width
-                                            text: itemCard.imageMeta ? itemCard.imageMeta.title : "Image"
-                                            color: itemCard.isSelected ? root.colTextPrimary : Qt.rgba(root.colTextPrimary.r, root.colTextPrimary.g, root.colTextPrimary.b, 0.95)
+                                            text: row.imageMeta ? row.imageMeta.title : "Image"
+                                            color: row.isSelected ? Theme.colorOnSecondaryContainer : Theme.colorOnSurface
                                             font.family: Theme.fontFamily
-                                            font.pixelSize: 14
+                                            font.pixelSize: 15
                                             font.bold: true
                                             elide: Text.ElideRight
                                             renderType: Text.NativeRendering
                                         }
-
                                         Text {
                                             width: parent.width
-                                            text: itemCard.imageMeta ? ((itemCard.imageMeta.size ? itemCard.imageMeta.size + " • " : "") + itemCard.imageMeta.dimensions) : ""
-                                            color: root.colTextMuted
+                                            text: row.imageMeta ? ((row.imageMeta.size ? row.imageMeta.size + " • " : "") + row.imageMeta.dimensions) : ""
+                                            color: Theme.colorOnSurfaceVariant
                                             font.family: Theme.fontFamily
                                             font.pixelSize: 12
                                             elide: Text.ElideRight
@@ -1084,118 +1122,31 @@ PanelWindow {
                                         }
                                     }
                                 }
-
-                                // Timestamp Tag (boxed pill matching photo example)
-                                Rectangle {
-                                    height: 20
-                                    width: timeRow.implicitWidth + 14
-                                    radius: 6
-                                    color: Qt.rgba(0, 0, 0, 0.28)
-                                    border.color: Qt.rgba(Theme.secondary.r, Theme.secondary.g, Theme.secondary.b, 0.1)
-                                    border.width: 1
-
-                                    Row {
-                                        id: timeRow
-                                        anchors.centerIn: parent
-                                        spacing: 5
-
-                                        Text {
-                                            anchors.verticalCenter: parent.verticalCenter
-                                            text: ""
-                                            color: root.colTextMuted
-                                            font.family: Theme.iconFamily
-                                            font.pixelSize: 11
-                                            renderType: Text.NativeRendering
-                                        }
-
-                                        Text {
-                                            anchors.verticalCenter: parent.verticalCenter
-                                            text: root.getRelativeTime(itemCard.index)
-                                            color: root.colTextMuted
-                                            font.family: Theme.fontFamily
-                                            font.pixelSize: 11
-                                            renderType: Text.NativeRendering
-                                        }
-                                    }
-                                }
                             }
 
-                            // Right Action Column: Pin Button on top, Delete Button below it
-                            Item {
-                                width: 26
-                                height: parent.height
-                                anchors.top: parent.top
+                            // trailing actions: pin (toggle) + delete
+                            Row {
+                                id: actions
+                                anchors.right: parent.right
+                                anchors.rightMargin: 8
+                                anchors.verticalCenter: parent.verticalCenter
+                                spacing: 0
 
-                                // Pin Button (replacing Plus button at top)
-                                Rectangle {
-                                    id: pinBtn
-                                    anchors.top: parent.top
-                                    anchors.horizontalCenter: parent.horizontalCenter
-                                    width: 26
-                                    height: 26
-                                    radius: 13
-                                    color: itemCard.isPinned ? root.colAccent : (pinMouse.containsMouse ? Qt.rgba(root.colAccent.r, root.colAccent.g, root.colAccent.b, 0.2) : "transparent")
-                                    opacity: itemCard.isPinned ? 1.0 : ((cardMouse.containsMouse || itemCard.isSelected) ? 1.0 : 0.0)
-
-                                    Behavior on opacity {
-                                        NumberAnimation { duration: 120 }
-                                    }
-                                    Behavior on color {
-                                        ColorAnimation { duration: 120 }
-                                    }
-
-                                    Text {
-                                        anchors.centerIn: parent
-                                        text: ""
-                                        color: itemCard.isPinned ? root.colBg : (pinMouse.containsMouse ? root.colAccent : root.colTextDim)
-                                        font.family: Theme.iconFamily
-                                        font.pixelSize: 13
-                                        renderType: Text.NativeRendering
-                                    }
-
-                                    MouseArea {
-                                        id: pinMouse
-                                        anchors.fill: parent
-                                        hoverEnabled: true
-                                        cursorShape: Qt.PointingHandCursor
-                                        onClicked: root.togglePin(itemCard.modelData.id)
-                                    }
+                                IconBtn {
+                                    glyph: ""
+                                    filled: row.isPinned
+                                    activeFill: Theme.primary
+                                    fg: row.isPinned ? Theme.primary : Theme.colorOnSurfaceVariant
+                                    opacity: row.isPinned ? 1.0 : ((cardMouse.containsMouse || row.isSelected) ? 1.0 : 0.0)
+                                    Behavior on opacity { NumberAnimation { duration: 120 } }
+                                    onClicked: root.togglePin(row.cid)
                                 }
-
-                                // Delete Button (below Pin button)
-                                Rectangle {
-                                    id: deleteBtn
-                                    anchors.bottom: parent.bottom
-                                    anchors.horizontalCenter: parent.horizontalCenter
-                                    width: 26
-                                    height: 26
-                                    radius: 7
-                                    color: deleteMouse.containsMouse ? Qt.rgba(root.colDanger.r, root.colDanger.g, root.colDanger.b, 0.2) : "transparent"
-                                    opacity: (cardMouse.containsMouse || itemCard.isSelected) ? 1.0 : 0.0
-
-                                    Behavior on opacity {
-                                        NumberAnimation { duration: 120 }
-                                    }
-                                    Behavior on color {
-                                        ColorAnimation { duration: 120 }
-                                    }
-
-                                    Text {
-                                        anchors.centerIn: parent
-                                        text: ""
-                                        color: deleteMouse.containsMouse ? root.colDanger : root.colTextDim
-                                        font.family: Theme.iconFamily
-                                        font.pixelSize: 13
-                                        renderType: Text.NativeRendering
-                                    }
-
-                                    MouseArea {
-                                        id: deleteMouse
-                                        anchors.fill: parent
-                                        hoverEnabled: true
-                                        cursorShape: Qt.PointingHandCursor
-                                        onClicked: root.deleteItem(itemCard.modelData.id)
-                                    }
+                                IconBtn {
+                                    glyph: ""
+                                    fg: Theme.error
+                                    opacity: (cardMouse.containsMouse || row.isSelected) ? 1.0 : 0.0
+                                    Behavior on opacity { NumberAnimation { duration: 120 } }
+                                    onClicked: root.deleteItem(row.cid)
                                 }
                             }
                         }

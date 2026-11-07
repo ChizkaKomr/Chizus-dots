@@ -7,15 +7,11 @@ Rectangle {
 
     property var barWindow: null
 
-    color: Theme.background
-    radius: Theme.pillRadius
+    color: "transparent"
+    radius: 0
     implicitHeight: Theme.pillHeight
-    implicitWidth: 32 // padding: 0 8px
+    implicitWidth: 32
 
-    scale: mouseArea.pressed ? 0.92 : (mouseArea.containsMouse ? 1.05 : 1.0)
-    Behavior on scale {
-        NumberAnimation { duration: 150; easing.type: Easing.OutBack }
-    }
 
     NotificationCenter {
         id: notifCenter

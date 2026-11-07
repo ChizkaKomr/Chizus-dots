@@ -30,6 +30,12 @@ hl.window_rule({
     float = true,
 })
 
+hl.window_rule({
+    name  = "transparent_code",
+    match = { class = "codium" },
+    opacity = 0.88,
+})
+
 
 hl.window_rule({
     name  = "Steam galery float",

@@ -36,7 +36,7 @@ output_path = '~/.config/gtk-4.0/colors.css'
 post_hook = '~/.config/matugen/post-hook-scripts/gtk-themes-reload.sh'
 
 [templates.rmpc]
-input_path = '/home/chizuko/.config/matugen/templates/rmpc.ron'
+input_path = '~/.config/matugen/templates/rmpc.ron'
 output_path = '~/.config/rmpc/themes/matugen.ron'
 
 [templates.hyprcolors]
@@ -44,9 +44,9 @@ input_path = '/home/chizuko/.config/matugen/templates/hyprcolors.lua'
 output_path = '~/.config/hypr/modules/colors.lua'
 
 [templates.obs]
-input_path = '/home/chizuko/.config/matugen/templates/obs_colors.obt'
+input_path = '~/.config/matugen/templates/obs_colors.obt'
 output_path = '~/.config/obs-studio/themes/matugen.obt'
 
 [templates.material_colors]
-input_path = '/home/chizuko/.config/matugen/templates/MD3_colors.json'
+input_path = '~/.config/matugen/templates/MD3_colors.json'
 output_path = '~/.config/quickshell/just_colors.json'

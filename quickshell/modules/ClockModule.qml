@@ -18,6 +18,12 @@ Rectangle {
     }
 
     property bool showAlt: false
+    property var barWindow: null
+
+    CalendarCenter {
+        id: calendar
+        parentWindow: root.barWindow
+    }
     property var currentTime: new Date()
 
     Timer {
@@ -78,8 +84,10 @@ Rectangle {
     anchors.fill: parent
     hoverEnabled: true
     cursorShape: Qt.PointingHandCursor
-    onClicked: {
-        root.showAlt = !root.showAlt;
-	}
+    acceptedButtons: Qt.LeftButton | Qt.RightButton
+    onClicked: mouse => {
+        if (mouse.button === Qt.RightButton) root.showAlt = !root.showAlt;   // right click: toggle date text
+        else calendar.toggle();                                              // left click: calendar
+    }
     }
 }

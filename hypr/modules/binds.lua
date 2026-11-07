@@ -1,6 +1,6 @@
 local terminal    = "kitty"
 local fileManager = "nautilus"
-local menu        = "rofi -show drun"
+local menu        = "quickshell ipc call launcher toggle"
 local browser     = "zen-browser"
 local mainMod = "SUPER"
 
@@ -12,7 +12,7 @@ hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + SPACE", hl.dsp.exec_cmd(menu))
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(browser))
-hl.bind(mainMod .. " + L", hl.dsp.exec_cmd("hyprlock"))
+hl.bind(mainMod .. " + L", hl.dsp.exec_cmd("quickshell ipc call lock lock"))
 hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
 hl.bind(mainMod .. " + J", hl.dsp.layout("togglesplit"))    -- dwindle only
 hl.bind(mainMod .. " + Home", hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }))
